@@ -1,0 +1,33 @@
+﻿# Cursor indexes fewer files — faster context and lower token use.
+# Uses .gitignore-style patterns.
+
+# Build outputs (large, regenerated constantly)
+**/bin/
+**/obj/
+**/publish/
+**/out/
+**/artifacts/
+
+# Visual Studio / IDE caches
+.vs/
+.idea/
+
+# NuGet package caches inside the repo
+**/packages/
+
+# Test & coverage outputs
+**/TestResults/
+coverage/
+*.coverage
+*.coveragexml
+
+# Logs
+**/logs/
+**/*.log
+
+# Installer / release artifacts (large binaries)
+installer/output/
+
+# OS junk
+**/.DS_Store
+**/Thumbs.db
