@@ -54,7 +54,8 @@
                             Content="✕" Width="28" Height="28"
                             Background="Transparent" BorderThickness="0"
                             Foreground="{DynamicResource BrushCloseButtonFg}" FontSize="13"
-                            Cursor="Hand" Click="Close_Click">
+                            Cursor="Hand" Click="Close_Click"
+                            ToolTip="Hide this window (Gremlins keeps running in the tray until you Exorcise).">
                         <Button.Style>
                             <Style TargetType="Button">
                                 <Setter Property="Background"    Value="Transparent"/>
@@ -88,10 +89,12 @@
                         ItemContainerStyle="{StaticResource DashboardTabItem}"
                         Background="Transparent"
                         BorderThickness="0">
-                <TabItem Header="Gremlins">
+                <TabItem Header="Gremlins"
+                         ToolTip="Turn tricks on/off, set severity, and open per-gremlin options. Gremlins stay active while this window is closed.">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
                         <StackPanel>
-                            <Border Style="{StaticResource BulkActionsShell}" Margin="0,0,0,10">
+                            <Border Style="{StaticResource BulkActionsShell}" Margin="0,0,0,10"
+                                    ToolTip="Linked controls: enable or disable every gremlin at once. The highlighted side matches “all off” or “all on.”">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -101,7 +104,7 @@
                                     <Button Grid.Column="0"
                                             Content="Enable all"
                                             Command="{Binding EnableAllCommand}"
-                                            ToolTip="Turn every gremlin on">
+                                            ToolTip="Sets every gremlin’s switch to On. Severity and custom settings are kept.">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource BulkSegmentButtonBase}">
                                                 <Style.Triggers>
@@ -126,7 +129,7 @@
                                     <Button Grid.Column="2"
                                             Content="Disable all"
                                             Command="{Binding DisableAllCommand}"
-                                            ToolTip="Turn every gremlin off">
+                                            ToolTip="Sets every gremlin’s switch to Off. Nothing is uninstalled; turn them back on anytime.">
                                         <Button.Style>
                                             <Style TargetType="Button" BasedOn="{StaticResource BulkSegmentButtonBase}">
                                                 <Style.Triggers>
@@ -152,7 +155,8 @@
                             <ItemsControl ItemsSource="{Binding GremlinCards}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type local:GremlinCardViewModel}">
-                                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10"
+                                                ToolTip="One gremlin trick. Toggle runs it; severity controls how often / how strong; ⚙ opens optional custom timings and sounds.">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -174,10 +178,12 @@
                                                     <StackPanel Orientation="Horizontal">
                                                         <TextBlock Text="Severity:" FontSize="11"
                                                                    Foreground="{DynamicResource BrushTextMuted}" VerticalAlignment="Center"
-                                                                   Margin="0,0,8,0"/>
+                                                                   Margin="0,0,8,0"
+                                                                   ToolTip="Preset intensity when custom gremlin settings are off: slower→faster and subtler→wilder."/>
                                                         <ComboBox ItemsSource="{Binding Severities}"
                                                                   SelectedItem="{Binding Severity}"
-                                                                  IsEnabled="{Binding IsEnabled}">
+                                                                  IsEnabled="{Binding IsEnabled}"
+                                                                  ToolTip="Mischievous: slower / subtler. Annoying: more frequent. Unhinged: strongest intervals and effects (per gremlin).">
                                                             <ComboBox.ItemTemplate>
                                                                 <DataTemplate>
                                                                     <TextBlock Foreground="{DynamicResource BrushTextPrimary}"
@@ -191,13 +197,14 @@
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal"
                                                             VerticalAlignment="Center" Margin="12,0,0,0">
                                                     <Button Content="⚙"
-                                                            ToolTip="Custom settings for this gremlin"
+                                                            ToolTip="Open optional settings for this gremlin (custom intervals, volumes, paths) saved with your preferences."
                                                             Style="{StaticResource CardGearButton}"
                                                             Command="{Binding OpenGremlinSettingsCommand}"
                                                             Margin="0,0,10,0"/>
                                                     <ToggleButton Style="{StaticResource ToggleStyle}"
                                                                   IsChecked="{Binding IsEnabled}"
-                                                                  VerticalAlignment="Center"/>
+                                                                  VerticalAlignment="Center"
+                                                                  ToolTip="Master switch for this gremlin. Off = no hooks or timers from this trick; On = runs according to Rules &amp; timing and severity."/>
                                                 </StackPanel>
                                             </Grid>
                                         </Border>
@@ -208,14 +215,17 @@
                     </ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="Rules &amp; timing">
+                <TabItem Header="Rules &amp; timing"
+                         ToolTip="When tricks may run: quiet hours, schedules, focus apps, idle boost, soft start, and pausing during presentations or fullscreen.">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
                         <StackPanel>
                             <TextBlock Text="Quiet hours" FontWeight="SemiBold" Margin="0,0,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Optional blackout window: while enabled and the clock is inside Start–End, every gremlin is paused."/>
                             <CheckBox Content="Block tricks during quiet hours"
                                       IsChecked="{Binding Behavior.QuietHoursEnabled}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="When enabled, no gremlin runs between Start and End (local clock). Useful for sleep or meetings."/>
                             <Grid Margin="0,8,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -223,134 +233,163 @@
                                 </Grid.ColumnDefinitions>
                                 <StackPanel Grid.Column="0" Margin="0,0,8,0">
                                     <TextBlock Text="Start" FontSize="10" Foreground="{DynamicResource BrushTextMuted}"/>
-                                    <Slider Minimum="0" Maximum="1439" Value="{Binding Behavior.QuietStartMinutes}"/>
+                                    <Slider Minimum="0" Maximum="1439" Value="{Binding Behavior.QuietStartMinutes}"
+                                            ToolTip="Minute of day (24h) when quiet hours begin. Paired with End; supports overnight ranges (e.g. 22:00–07:00)."/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
                                                Text="{Binding Behavior.QuietStartMinutes, Converter={StaticResource MinutesClock}}"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="1">
                                     <TextBlock Text="End" FontSize="10" Foreground="{DynamicResource BrushTextMuted}"/>
-                                    <Slider Minimum="0" Maximum="1439" Value="{Binding Behavior.QuietEndMinutes}"/>
+                                    <Slider Minimum="0" Maximum="1439" Value="{Binding Behavior.QuietEndMinutes}"
+                                            ToolTip="Minute of day when quiet hours end. If end is before start on the clock, the quiet band crosses midnight."/>
                                     <TextBlock FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
                                                Text="{Binding Behavior.QuietEndMinutes, Converter={StaticResource MinutesClock}}"/>
                                 </StackPanel>
                             </Grid>
 
                             <TextBlock Text="Schedule (optional)" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Restrict tricks to certain hours and optionally weekdays/weekends only (local machine time)."/>
                             <CheckBox Content="Only allow tricks during this daily window (local time)"
                                       IsChecked="{Binding Behavior.ScheduleEnabled}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="When enabled, tricks run only between From hour and To hour each day (local time). Combine with weekday/weekend filters below."/>
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <TextBlock Text="From hour" VerticalAlignment="Center" Margin="0,0,8,0"
                                            Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
                                 <Slider Width="160" Minimum="0" Maximum="23"
-                                        Value="{Binding Behavior.ScheduleFromHour}"/>
+                                        Value="{Binding Behavior.ScheduleFromHour}"
+                                        ToolTip="Inclusive start hour (0–23). Tricks allowed from this hour onward until To hour."/>
                                 <TextBlock Text="{Binding Behavior.ScheduleFromHour}" Margin="8,0,16,0"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text="To hour (exclusive)" VerticalAlignment="Center" Margin="0,0,8,0"
                                            Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
                                 <Slider Width="160" Minimum="0" Maximum="23"
-                                        Value="{Binding Behavior.ScheduleToHour}"/>
+                                        Value="{Binding Behavior.ScheduleToHour}"
+                                        ToolTip="Exclusive end hour: tricks stop when local hour reaches this value. Window is [From, To)."/>
                                 <TextBlock Text="{Binding Behavior.ScheduleToHour}" Margin="8,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                             <CheckBox Margin="0,10,0,0" Content="Weekdays only (Mon–Fri)"
                                       IsChecked="{Binding Behavior.ScheduleWeekdaysOnly}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="If schedule is on: allow tricks only Monday–Friday. Usually leave weekends off when both weekday/weekend are unchecked (all days)."/>
                             <CheckBox Content="Weekends only"
                                       IsChecked="{Binding Behavior.ScheduleWeekendsOnly}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="If schedule is on: allow tricks only Saturday–Sunday. Don’t enable both weekday and weekend unless you know what you want."/>
 
                             <TextBlock Text="Foreground apps" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Focus deny-list: pause tricks while specific programs own the foreground window."/>
                             <CheckBox Content="Pause tricks when these processes are in the foreground"
                                       IsChecked="{Binding Behavior.FocusRulesEnabled}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="While a listed app has focus (foreground window), gremlins pause—useful for calls, games, or IDE focus time."/>
                             <TextBox Margin="0,6,0,0" Text="{Binding Behavior.FocusDenyExeList, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="Comma-separated: notepad.exe, devenv.exe"
+                                     ToolTip="Comma-separated executable names (e.g. zoom.exe, Code.exe). Matching is by process name + .exe. Case-insensitive."
                                      Background="{DynamicResource BrushComboChromeBg}"
                                      Foreground="{DynamicResource BrushTextPrimary}"
                                      BorderBrush="{DynamicResource BrushBorder}"/>
 
                             <TextBlock Text="Idle intensity" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Make intervals shorter after you’ve been away from keyboard/mouse long enough (idle detection)."/>
                             <CheckBox Content="Ramp chaos after you've been idle (shorter waits)"
                                       IsChecked="{Binding Behavior.IdleIntensityEnabled}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="After no keyboard/mouse input for the threshold below, gremlin timers tighten so tricks happen more often until you move again."/>
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <TextBlock Text="Idle boost after (seconds)" VerticalAlignment="Center"
                                            Foreground="{DynamicResource BrushTextMuted}" FontSize="11" Margin="0,0,10,0"/>
                                 <Slider Width="220" Minimum="60" Maximum="3600"
-                                        Value="{Binding Behavior.IdleBoostAfterSeconds}"/>
+                                        Value="{Binding Behavior.IdleBoostAfterSeconds}"
+                                        ToolTip="Seconds without input before idle boost applies. Lower = sooner ramp-up."/>
                                 <TextBlock Text="{Binding Behavior.IdleBoostAfterSeconds}" Margin="10,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
                             <TextBlock Text="Soft start" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Grace period after this process starts before any trick may fire (separate from Windows login delay)."/>
                             <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
                                        Text="After Gremlins launches, wait before any trick fires (does not delay Windows startup by itself)."/>
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <TextBlock Text="Minutes" VerticalAlignment="Center" Margin="0,0,10,0"
                                            Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
                                 <Slider Width="240" Minimum="0" Maximum="120"
-                                        Value="{Binding Behavior.SoftStartMinutes}"/>
+                                        Value="{Binding Behavior.SoftStartMinutes}"
+                                        ToolTip="Minutes after Gremlins starts (from this app, not Windows boot) before any trick may run. Independent of Startup delay."/>
                                 <TextBlock Text="{Binding Behavior.SoftStartMinutes}" Margin="10,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
                             <TextBlock Text="Windows modes" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Extra guards using OS signals so tricks pause during presentations, games, or busy UI states."/>
                             <CheckBox Content="Pause during presentation mode"
                                       IsChecked="{Binding Behavior.RespectPresentationMode}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="Uses Windows “presentation” state (e.g. slideshows, some meeting fullscreen) to suppress tricks."/>
                             <CheckBox Content="Pause during full-screen / busy states (games, etc.)"
                                       IsChecked="{Binding Behavior.RespectFullScreenApps}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="Pauses during exclusive fullscreen games/videos and some “busy” notification states so input hooks don’t interfere."/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="Safety &amp; profiles">
+                <TabItem Header="Safety &amp; profiles"
+                         ToolTip="Panic cooldown, quick profiles, activity log, and UI sound customization. Nothing here uploads data.">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
                         <StackPanel>
                             <TextBlock Text="Panic" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Temporary silence: tricks stop until cooldown ends or you Resume—without flipping gremlin switches off."/>
                             <TextBlock TextWrapping="Wrap" FontSize="11" Margin="0,4,0,8"
                                        Foreground="{DynamicResource BrushTextMuted}">
                                 Silences tricks for a while. Your toggles stay as they are — tricks resume automatically when the cooldown ends.
                             </TextBlock>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Panic now" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding PanicCommand}" Margin="0,0,10,0"/>
+                                        Command="{Binding PanicCommand}" Margin="0,0,10,0"
+                                        ToolTip="Immediately suppress all tricks for the cooldown duration below. Your on/off toggles are unchanged; tricks resume after Panic ends."/>
                                 <Button Content="Resume tricks" Style="{StaticResource ActionButtonPrimary}"
-                                        Command="{Binding ResumeTricksCommand}"/>
+                                        Command="{Binding ResumeTricksCommand}"
+                                        ToolTip="Clear Panic early so tricks follow your rules again (quiet hours, schedule, etc.)."/>
                             </StackPanel>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                 <TextBlock Text="Cooldown (minutes)" VerticalAlignment="Center" Margin="0,0,10,0"
                                            Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
                                 <Slider Width="200" Minimum="5" Maximum="180"
-                                        Value="{Binding Behavior.PanicCooldownMinutes}"/>
+                                        Value="{Binding Behavior.PanicCooldownMinutes}"
+                                        ToolTip="How long Panic lasts after you trigger it (from tray or here). Default tray Panic uses this value too."/>
                                 <TextBlock Text="{Binding Behavior.PanicCooldownMinutes}" Margin="10,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
                             <TextBlock Text="Profiles" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="One-click presets for all gremlins: all off, all on mild, or all on maximum severity."/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Quiet workplace" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding ProfileQuietCommand}" Margin="0,0,8,0"/>
+                                        Command="{Binding ProfileQuietCommand}" Margin="0,0,8,0"
+                                        ToolTip="Turns every gremlin off and saves—good for meetings or sharing your screen."/>
                                 <Button Content="Mild chaos" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding ProfileMildCommand}" Margin="0,0,8,0"/>
+                                        Command="{Binding ProfileMildCommand}" Margin="0,0,8,0"
+                                        ToolTip="Enables all gremlins at Mischievous severity (gentler timing)."/>
                                 <Button Content="Maximum chaos" Style="{StaticResource ActionButtonPrimary}"
-                                        Command="{Binding ProfileChaosCommand}"/>
+                                        Command="{Binding ProfileChaosCommand}"
+                                        ToolTip="Enables all gremlins at Unhinged severity (strongest / fastest effects)."/>
                             </StackPanel>
 
                             <TextBlock Text="Activity log (local only)" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Optional rolling text log of what tricks did (stored in memory for this session view; not cloud)."/>
                             <CheckBox Content="Record gremlin actions"
                                       IsChecked="{Binding Behavior.ActivityLogEnabled}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="Writes short lines when tricks fire (local list below). Disable if you prefer no history."/>
                             <Border Margin="0,8,0,0" Padding="8" CornerRadius="6"
                                     Background="{DynamicResource BrushBgCard}"
                                     BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
@@ -359,23 +398,28 @@
                                          Background="Transparent"
                                          BorderThickness="0"
                                          Foreground="{DynamicResource BrushTextMuted}"
-                                         FontFamily="Consolas" FontSize="10"/>
+                                         FontFamily="Consolas" FontSize="10"
+                                         ToolTip="Recent gremlin events on this PC only; not uploaded. Scroll for older lines."/>
                             </Border>
                             <Button Content="Clear log" HorizontalAlignment="Left" Margin="0,8,0,0"
                                     Style="{StaticResource ActionButtonSecondary}"
-                                    Command="{Binding ClearActivityLogCommand}"/>
+                                    Command="{Binding ClearActivityLogCommand}"
+                                    ToolTip="Erase the in-memory activity log (cannot be undone)."/>
 
                             <TextBlock Text="Sounds" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Configure the click sound when toggling gremlins on the main tab (preset or custom file)."/>
                             <CheckBox Content="Tiny UI sound when toggling a gremlin"
                                       IsChecked="{Binding Behavior.UiSoundsEnabled}"
-                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                                      Foreground="{DynamicResource BrushTextPrimary}"
+                                      ToolTip="Plays a sound when you flip a gremlin’s toggle on the Gremlins tab (preset or custom file below). Preview ignores this checkbox."/>
                             <TextBlock Text="Preset (used when no custom file is set below)"
                                        FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,10,0,4"/>
                             <ComboBox ItemsSource="{Binding UiSoundPresetOptions}"
                                       SelectedValue="{Binding Behavior.UiSoundPreset}"
                                       SelectedValuePath="Preset"
-                                      DisplayMemberPath="Label"/>
+                                      DisplayMemberPath="Label"
+                                      ToolTip="Windows system sound played when no custom file is set. Volume follows Windows mixer, not the slider below."/>
                             <TextBlock Text="Custom UI sound (.wav / .mp3) — overrides preset"
                                        FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,12,0,4"/>
                             <Grid>
@@ -385,33 +429,40 @@
                                 </Grid.ColumnDefinitions>
                                 <TextBox Grid.Column="0"
                                          Text="{Binding Behavior.UiSoundCustomPath, UpdateSourceTrigger=PropertyChanged}"
-                                         ToolTip="Leave empty to use the preset above"/>
+                                         ToolTip="Full path to a .wav or .mp3. When valid, it replaces the preset for toggle sounds. Leave empty for preset only."/>
                                 <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0"
                                         Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding BrowseUiSoundFileCommand}"/>
+                                        Command="{Binding BrowseUiSoundFileCommand}"
+                                        ToolTip="Pick an audio file from disk (WAV or MP3 via NAudio)."/>
                             </Grid>
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <Button Content="Clear file" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding ClearUiSoundCustomCommand}"/>
+                                        Command="{Binding ClearUiSoundCustomCommand}"
+                                        ToolTip="Remove custom path and use the preset sound again."/>
                                 <Button Content="Preview" Style="{StaticResource ActionButtonPrimary}"
-                                        Command="{Binding PreviewUiSoundCommand}" Margin="8,0,0,0"/>
+                                        Command="{Binding PreviewUiSoundCommand}" Margin="8,0,0,0"
+                                        ToolTip="Play once using current preset/file settings (works even if UI sounds are disabled)."/>
                             </StackPanel>
                             <TextBlock Text="Volume for custom file only (system presets use Windows volume)"
                                        FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,10,0,4"/>
                             <Slider Minimum="0" Maximum="100"
-                                    Value="{Binding Behavior.UiSoundVolumePercent}"/>
+                                    Value="{Binding Behavior.UiSoundVolumePercent}"
+                                    ToolTip="Playback volume for custom toggle sound files only. Presets use Windows notification volume."/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
 
-                <TabItem Header="App &amp; data">
+                <TabItem Header="App &amp; data"
+                         ToolTip="Theme, startup, portable data folder, recipe import/export, GitHub updates, and onboarding.">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
                         <StackPanel>
                             <TextBlock Text="Appearance" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Dashboard color theme; saved in preferences and applied immediately."/>
                             <ComboBox Margin="0,8,0,0" Width="280" HorizontalAlignment="Left"
                                       ItemsSource="{Binding ThemeOptions}"
-                                      SelectedItem="{Binding ThemePreference}">
+                                      SelectedItem="{Binding ThemePreference}"
+                                      ToolTip="Dashboard colors: System follows Windows light/dark; other palettes are fixed schemes. Saved automatically.">
                                 <ComboBox.ItemTemplate>
                                     <DataTemplate>
                                         <TextBlock Foreground="{DynamicResource BrushTextPrimary}"
@@ -421,7 +472,8 @@
                             </ComboBox>
 
                             <TextBlock Text="Startup" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Launch Gremlins after Windows sign-in (registry Run) and optional stagger delay."/>
                             <Border Padding="12,10" CornerRadius="8"
                                     Background="{DynamicResource BrushBgCard}"
                                     BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
@@ -432,67 +484,81 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="Start with Windows" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource BrushTextPrimary}"/>
+                                                   Foreground="{DynamicResource BrushTextPrimary}"
+                                                   ToolTip="Same as the toggle on the right: register Gremlins to start after you sign in to Windows."/>
                                         <TextBlock Text="Delay launch after sign-in (helps slower PCs)"
                                                    FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,4,0,8"/>
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="Delay (seconds)" VerticalAlignment="Center"
                                                        FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,10,0"/>
                                             <Slider Width="200" Minimum="0" Maximum="600"
-                                                    Value="{Binding Behavior.StartupDelaySeconds}"/>
+                                                    Value="{Binding Behavior.StartupDelaySeconds}"
+                                                    ToolTip="Seconds to wait after sign-in before Gremlins starts when “Start with Windows” is on. Helps slow logons."/>
                                             <TextBlock Text="{Binding Behavior.StartupDelaySeconds}" Margin="10,0,0,0"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </StackPanel>
                                     <ToggleButton Grid.Column="1" VerticalAlignment="Center"
                                                   Style="{StaticResource ToggleStyle}"
-                                                  IsChecked="{Binding StartWithWindows}"/>
+                                                  IsChecked="{Binding StartWithWindows}"
+                                                  ToolTip="Registers Gremlins in your user Run key so it launches after login (with optional delay)."/>
                                 </Grid>
                             </Border>
 
                             <TextBlock Text="Portable mode" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Keep GremlinsData beside the executable for removable drives; requires restart after toggling marker."/>
                             <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource BrushTextMuted}">
                                 Store GremlinsData next to the executable (USB-friendly). Restart after changing.
                             </TextBlock>
                             <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <Button Content="Enable portable data folder" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding EnablePortableModeCommand}" Margin="0,0,10,0"/>
+                                        Command="{Binding EnablePortableModeCommand}" Margin="0,0,10,0"
+                                        ToolTip="Creates a marker next to Gremlins.exe so settings/data load from GremlinsData beside the exe after restart (USB-friendly)."/>
                                 <Button Content="Use AppData again" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding DisablePortableModeCommand}"/>
+                                        Command="{Binding DisablePortableModeCommand}"
+                                        ToolTip="Removes portable markers; after restart settings use %AppData%\\Gremlins again (copy GremlinsData first if you need it)."/>
                             </StackPanel>
                             <TextBlock Margin="0,6,0,0" FontSize="11" TextWrapping="Wrap"
                                        Foreground="{DynamicResource BrushTextMuted}"
                                        Text="{Binding PortableMarkerSummary}"/>
 
                             <TextBlock Text="Recipes" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Share or backup which gremlins are on and their severity as a small JSON file."/>
                             <StackPanel Orientation="Horizontal">
                                 <Button Content="Export recipe…" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding ExportRecipeCommand}" Margin="0,0,10,0"/>
+                                        Command="{Binding ExportRecipeCommand}" Margin="0,0,10,0"
+                                        ToolTip="Save which gremlins are on/off and their severity to a JSON file you can share or back up."/>
                                 <Button Content="Import recipe…" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding ImportRecipeCommand}"/>
+                                        Command="{Binding ImportRecipeCommand}"
+                                        ToolTip="Load gremlin on/off + severity from a recipe JSON file (merges into current session and saves)."/>
                             </StackPanel>
 
                             <TextBlock Text="Updates" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Optional GitHub repo check: compares release tags only (no auto-download)."/>
                             <TextBox Width="320" HorizontalAlignment="Left" Margin="0,4,0,0"
                                      Text="{Binding Behavior.GitHubUpdateRepo, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="owner/repo on GitHub"/>
+                                     ToolTip="GitHub repository as owner/name (e.g. octocat/Hello-World). Used only to compare release tags when you click Check GitHub."/>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                 <Button Content="Check GitHub" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding CheckUpdatesCommand}" Margin="0,0,10,0"/>
+                                        Command="{Binding CheckUpdatesCommand}" Margin="0,0,10,0"
+                                        ToolTip="Looks up the latest release tag on GitHub (read-only) and compares to this app’s version. Requires network."/>
                                 <Button Content="Open releases page" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding OpenGithubReleasesCommand}"/>
+                                        Command="{Binding OpenGithubReleasesCommand}"
+                                        ToolTip="Opens github.com/&lt;repo&gt;/releases in your browser for downloads and notes."/>
                             </StackPanel>
                             <TextBlock Text="{Binding UpdateCheckMessage}" TextWrapping="Wrap" Margin="0,8,0,0"
                                        FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
 
                             <TextBlock Text="Welcome" FontWeight="SemiBold" Margin="0,18,0,6"
-                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                                       Foreground="{DynamicResource BrushTextPrimary}"
+                                       ToolTip="Show the first-run summary again on next application start."/>
                             <Button Content="Show welcome summary again" HorizontalAlignment="Left"
                                     Style="{StaticResource ActionButtonSecondary}"
-                                    Command="{Binding ResetOnboardingCommand}"/>
+                                    Command="{Binding ResetOnboardingCommand}"
+                                    ToolTip="Next launch shows the welcome window again (privacy/local-data reminder). Does not delete settings."/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>
@@ -502,7 +568,8 @@
                     CornerRadius="0,0,12,12">
                 <TextBlock Text="Runs in the system tray. Close hides this window — Gremlins keeps running. Tray ▸ Exorcise quits completely."
                            FontSize="10" Foreground="{DynamicResource BrushTextMuted}" TextAlignment="Center"
-                           TextWrapping="Wrap"/>
+                           TextWrapping="Wrap"
+                           ToolTip="Closing this dashboard does not stop gremlins. Use the tray icon: open dashboard, Panic, Resume, or Exorcise (exit app completely)."/>
             </Border>
         </Grid>
     </Border>

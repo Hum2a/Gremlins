@@ -20,7 +20,8 @@
             BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
         <DockPanel>
             <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,16,0,0">
-                <Button Content="Done" Style="{StaticResource ActionButtonPrimary}" Padding="20,10" Click="Done_Click" IsDefault="True"/>
+                <Button Content="Done" Style="{StaticResource ActionButtonPrimary}" Padding="20,10" Click="Done_Click" IsDefault="True"
+                        ToolTip="Apply changes to preferences file immediately and close this window (settings also debounce-save while you edit)."/>
             </StackPanel>
 
             <ScrollViewer VerticalScrollBarVisibility="Auto" MaxHeight="440">
@@ -29,57 +30,69 @@
                     <StackPanel Visibility="{Binding ShowDrifter, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom timing &amp; drift (ignore severity presets)"
                                   IsChecked="{Binding Current.Drifter.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When checked, intervals and drift below replace the Mischievous/Annoying/Unhinged timing for cursor nudges."/>
                         <TextBlock Text="Min interval (seconds)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="10" Maximum="7200" TickFrequency="60" IsSnapToTickEnabled="False"
-                                Value="{Binding Current.Drifter.MinIntervalSeconds}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.Drifter.MinIntervalSeconds}" Margin="0,4,0,8"
+                                ToolTip="Shortest wait between random cursor moves (seconds). Used with Max to pick a random delay each cycle."/>
                         <TextBlock Text="Max interval (seconds)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="10" Maximum="7200"
-                                Value="{Binding Current.Drifter.MaxIntervalSeconds}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.Drifter.MaxIntervalSeconds}" Margin="0,4,0,8"
+                                ToolTip="Longest wait between nudges. Should be ≥ Min; if reversed, the app clamps safely."/>
                         <TextBlock Text="Max drift (pixels per nudge)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="120"
-                                Value="{Binding Current.Drifter.MaxDriftPixels}" Margin="0,4,0,0"/>
+                                Value="{Binding Current.Drifter.MaxDriftPixels}" Margin="0,4,0,0"
+                                ToolTip="Maximum horizontal/vertical offset applied each time (pixels). Larger = more noticeable jumps."/>
                     </StackPanel>
 
                     <!-- Typist -->
                     <StackPanel Visibility="{Binding ShowTypist, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom substitution chance (ignore severity presets)"
                                   IsChecked="{Binding Current.Typist.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When on, the percentage below replaces severity-based swap odds for lookalike keys (l vs I, o vs 0, etc.)."/>
                         <TextBlock Text="Substitution chance (% per eligible key)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="0.05" Maximum="25" SmallChange="0.05" LargeChange="1"
-                                Value="{Binding Current.Typist.SubstitutionChancePercent}" Margin="0,4,0,0"/>
+                                Value="{Binding Current.Typist.SubstitutionChancePercent}" Margin="0,4,0,0"
+                                ToolTip="Approximate chance each matching keystroke is swapped for a similar character (low-level keyboard hook)."/>
                     </StackPanel>
 
                     <!-- Amnesiac -->
                     <StackPanel Visibility="{Binding ShowAmnesiac, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom clear intervals (ignore severity presets)"
                                   IsChecked="{Binding Current.Amnesiac.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When on, clipboard clears happen on your Min/Max minute schedule instead of severity defaults."/>
                         <TextBlock Text="Min minutes between clears" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Amnesiac.MinIntervalMinutes}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.Amnesiac.MinIntervalMinutes}" Margin="0,4,0,8"
+                                ToolTip="Minimum minutes between silent clipboard clears."/>
                         <TextBlock Text="Max minutes between clears" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Amnesiac.MaxIntervalMinutes}" Margin="0,4,0,0"/>
+                                Value="{Binding Current.Amnesiac.MaxIntervalMinutes}" Margin="0,4,0,0"
+                                ToolTip="Maximum minutes between clears; each interval is random between Min and Max."/>
                     </StackPanel>
 
                     <!-- Critic -->
                     <StackPanel Visibility="{Binding ShowCritic, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom poll interval (ignore severity preset timing)"
                                   IsChecked="{Binding Current.Critic.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When on, foreground window title is checked every N seconds below instead of the default ~2s poll."/>
                         <TextBlock Text="Foreground window poll interval (seconds)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="120"
-                                Value="{Binding Current.Critic.PollIntervalSeconds}" Margin="0,4,0,10"/>
+                                Value="{Binding Current.Critic.PollIntervalSeconds}" Margin="0,4,0,10"
+                                ToolTip="How often to read the active window title for shame keywords (lower = more CPU wake-ups)."/>
                         <TextBlock Text="Extra title keywords (comma-separated, matched in window titles)" FontSize="11"
                                    Foreground="{DynamicResource BrushTextMuted}" TextWrapping="Wrap"/>
                         <TextBox Margin="0,6,0,0" Text="{Binding Current.Critic.ExtraTitleKeywords, UpdateSourceTrigger=PropertyChanged}"
-                                 ToolTip="Example: steam,epic games,mygame"/>
+                                 ToolTip="Additional substrings (comma-separated) matched case-insensitively in the title bar. Added to built-in list (YouTube, Reddit, etc.)."/>
                         <TextBlock Text="Sigh volume (generated or custom file)" FontSize="11"
                                    Foreground="{DynamicResource BrushTextMuted}" Margin="0,14,0,4"/>
                         <Slider Minimum="5" Maximum="100"
-                                Value="{Binding Current.Critic.SighVolumePercent}" Margin="0,0,0,10"/>
+                                Value="{Binding Current.Critic.SighVolumePercent}" Margin="0,0,0,10"
+                                ToolTip="Output volume for the sigh sound: built-in waveform or your custom WAV/MP3."/>
                         <TextBlock Text="Custom sigh (.wav / .mp3) — overrides generated tone"
                                    FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Grid Margin="0,6,0,0">
@@ -88,16 +101,20 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <TextBox Grid.Column="0"
-                                     Text="{Binding Current.Critic.CustomSighSoundPath, UpdateSourceTrigger=PropertyChanged}"/>
+                                     Text="{Binding Current.Critic.CustomSighSoundPath, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Optional path to replacement audio. When missing or invalid, the synthesized sigh is used."/>
                             <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0"
                                     Style="{StaticResource ActionButtonSecondary}"
-                                    Click="BrowseCriticSound_Click"/>
+                                    Click="BrowseCriticSound_Click"
+                                    ToolTip="Choose a WAV or MP3 file from disk."/>
                         </Grid>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <Button Content="Clear file" Style="{StaticResource ActionButtonSecondary}"
-                                    Click="ClearCriticSound_Click"/>
+                                    Click="ClearCriticSound_Click"
+                                    ToolTip="Remove custom path and use the generated sigh again."/>
                             <Button Content="Preview sigh" Style="{StaticResource ActionButtonPrimary}"
-                                    Margin="8,0,0,0" Click="PreviewCriticSound_Click"/>
+                                    Margin="8,0,0,0" Click="PreviewCriticSound_Click"
+                                    ToolTip="Play once using current volume and custom file (or generated if no file)."/>
                         </StackPanel>
                     </StackPanel>
 
@@ -105,51 +122,64 @@
                     <StackPanel Visibility="{Binding ShowPhilosopher, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom quote intervals (ignore severity presets)"
                                   IsChecked="{Binding Current.Philosopher.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When on, clipboard quote swaps use your minute range instead of severity-based spacing."/>
                         <TextBlock Text="Min minutes between clipboard quotes" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Philosopher.MinIntervalMinutes}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.Philosopher.MinIntervalMinutes}" Margin="0,4,0,8"
+                                ToolTip="Minimum time between replacing clipboard text with a random quote."/>
                         <TextBlock Text="Max minutes between clipboard quotes" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Philosopher.MaxIntervalMinutes}" Margin="0,4,0,0"/>
+                                Value="{Binding Current.Philosopher.MaxIntervalMinutes}" Margin="0,4,0,0"
+                                ToolTip="Maximum gap between philosophy drops; actual delay is random between Min and Max minutes."/>
                     </StackPanel>
 
                     <!-- Lag Ghost -->
                     <StackPanel Visibility="{Binding ShowLagGhost, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom lag timing (ignore severity presets)"
                                   IsChecked="{Binding Current.LagGhost.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When on, burst spacing, duration, and per-move lag below replace severity defaults for mouse slowdown windows."/>
                         <TextBlock Text="Min seconds between lag bursts" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="30" Maximum="86400"
-                                Value="{Binding Current.LagGhost.OuterMinSeconds}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.LagGhost.OuterMinSeconds}" Margin="0,4,0,8"
+                                ToolTip="Soonest next lag burst may start after the previous one ended (seconds)."/>
                         <TextBlock Text="Max seconds between lag bursts" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="30" Maximum="86400"
-                                Value="{Binding Current.LagGhost.OuterMaxSeconds}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.LagGhost.OuterMaxSeconds}" Margin="0,4,0,8"
+                                ToolTip="Latest gap before another burst randomizes between Min/Max outer interval."/>
                         <TextBlock Text="Burst duration (seconds)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="5" Maximum="600"
-                                Value="{Binding Current.LagGhost.BurstDurationSeconds}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.LagGhost.BurstDurationSeconds}" Margin="0,4,0,8"
+                                ToolTip="How long mouse movement stays artificially delayed once a burst begins (low-level hook sleeps per move)."/>
                         <TextBlock Text="Per-move lag min (ms)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="10" Maximum="3000"
-                                Value="{Binding Current.LagGhost.LagDelayMinMs}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.LagGhost.LagDelayMinMs}" Margin="0,4,0,8"
+                                ToolTip="Minimum extra delay injected per mouse message during a burst."/>
                         <TextBlock Text="Per-move lag max (ms)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="10" Maximum="3000"
-                                Value="{Binding Current.LagGhost.LagDelayMaxMs}" Margin="0,4,0,0"/>
+                                Value="{Binding Current.LagGhost.LagDelayMaxMs}" Margin="0,4,0,0"
+                                ToolTip="Maximum per-move delay; each event picks a random value between Min and Max milliseconds."/>
                     </StackPanel>
 
                     <!-- Rearranger -->
                     <StackPanel Visibility="{Binding ShowRearranger, Converter={StaticResource BoolToVis}}">
                         <CheckBox Content="Use custom window nudge timing (ignore severity presets)"
                                   IsChecked="{Binding Current.Rearranger.UseCustomSettings}"
-                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"/>
+                                  Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
+                                  ToolTip="When on, how often and how far the focused window shifts uses the sliders below instead of severity presets."/>
                         <TextBlock Text="Min minutes between nudges" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="1440"
-                                Value="{Binding Current.Rearranger.MinIntervalMinutes}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.Rearranger.MinIntervalMinutes}" Margin="0,4,0,8"
+                                ToolTip="Shortest wait between small position changes of the foreground window."/>
                         <TextBlock Text="Max minutes between nudges" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="1" Maximum="1440"
-                                Value="{Binding Current.Rearranger.MaxIntervalMinutes}" Margin="0,4,0,8"/>
+                                Value="{Binding Current.Rearranger.MaxIntervalMinutes}" Margin="0,4,0,8"
+                                ToolTip="Longest wait between nudges; interval randomizes between Min and Max."/>
                         <TextBlock Text="Max nudge (pixels)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
                         <Slider Minimum="2" Maximum="120"
-                                Value="{Binding Current.Rearranger.MaxNudgePixels}" Margin="0,4,0,0"/>
+                                Value="{Binding Current.Rearranger.MaxNudgePixels}" Margin="0,4,0,0"
+                                ToolTip="Largest horizontal or vertical shift applied each time (pixels)."/>
                     </StackPanel>
                 </StackPanel>
             </ScrollViewer>

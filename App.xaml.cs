@@ -43,7 +43,7 @@ public partial class App : System.Windows.Application
         // Set up tray icon
         _trayIcon = new TaskbarIcon
         {
-            ToolTipText = "Gremlins — running 👹",
+            ToolTipText = "Gremlins — running locally. Right-click for dashboard, Panic, Resume, or Exorcise.",
             ContextMenu = BuildTrayMenu(),
         };
         _trayIcon.TrayMouseDoubleClick += (_, _) => ShowDashboard();
@@ -76,18 +76,18 @@ public partial class App : System.Windows.Application
     {
         var menu = new System.Windows.Controls.ContextMenu();
 
-        var openItem = new System.Windows.Controls.MenuItem { Header = "👹  Open Gremlins" };
+        var openItem = new System.Windows.Controls.MenuItem { Header = "👹  Open Gremlins", ToolTip = "Show or focus the Gremlins dashboard." };
         openItem.Click += (_, _) => ShowDashboard();
 
-        var panicItem = new System.Windows.Controls.MenuItem { Header = "🔕  Panic (silence tricks)" };
+        var panicItem = new System.Windows.Controls.MenuItem { Header = "🔕  Panic (silence tricks)", ToolTip = "Suppress all tricks for the cooldown set under Safety & profiles (toggles unchanged)." };
         panicItem.Click += (_, _) => _services!.GetRequiredService<ExecutionGate>().TriggerPanic();
 
-        var resumeItem = new System.Windows.Controls.MenuItem { Header = "▶  Resume tricks" };
+        var resumeItem = new System.Windows.Controls.MenuItem { Header = "▶  Resume tricks", ToolTip = "End Panic early so tricks follow your rules again." };
         resumeItem.Click += (_, _) => _services!.GetRequiredService<ExecutionGate>().ClearPanic();
 
         var sep1 = new System.Windows.Controls.Separator();
 
-        var exitItem = new System.Windows.Controls.MenuItem { Header = "Exorcise all gremlins" };
+        var exitItem = new System.Windows.Controls.MenuItem { Header = "Exorcise all gremlins", ToolTip = "Quit Gremlins completely (tray icon disappears)." };
         exitItem.Click += (_, _) => Shutdown();
 
         menu.Items.Add(openItem);
