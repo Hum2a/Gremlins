@@ -5,8 +5,6 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <!-- Default until ThemeService initializes (same merge slot that gets swapped). -->
-                <ResourceDictionary Source="UI/Themes/Theme.Dark.xaml"/>
                 <ResourceDictionary Source="UI/Styles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>

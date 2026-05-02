@@ -14,14 +14,32 @@ public partial class MainViewModel : ObservableObject
 
     public ObservableCollection<GremlinCardViewModel> GremlinCards { get; } = [];
 
-    public IReadOnlyList<AppThemePreference> ThemeOptions { get; } =
-        Enum.GetValues<AppThemePreference>().ToArray();
+    public IReadOnlyList<AppThemePreference> ThemeOptions { get; } = BuildThemeOrder();
+
+    private static AppThemePreference[] BuildThemeOrder()
+    {
+        AppThemePreference[] head =
+        [
+            AppThemePreference.System,
+            AppThemePreference.Dark,
+            AppThemePreference.Light,
+        ];
+        var headSet = new HashSet<AppThemePreference>(head);
+        var tail = Enum.GetValues<AppThemePreference>()
+            .Where(p => !headSet.Contains(p))
+            .OrderBy(ThemePreferenceLabels.GetDisplayName, StringComparer.OrdinalIgnoreCase)
+            .ToArray();
+        return [..head, ..tail];
+    }
 
     [ObservableProperty]
     private int _activeCount;
 
     [ObservableProperty]
     private string _statusText = "All quiet.";
+
+    /// <summary>Shown in the window chrome (from assembly / csproj version).</summary>
+    public string AppVersionLabel => $"v{AppVersion.SemanticVersion}";
 
     [ObservableProperty]
     private bool _startWithWindows;

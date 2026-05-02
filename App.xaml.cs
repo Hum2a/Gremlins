@@ -1,6 +1,7 @@
 using System.Windows;
 using Gremlins.Core;
 using Gremlins.Services;
+using Gremlins.Services.Themes;
 using Gremlins.UI;
 using Hardcodet.Wpf.TaskbarNotification;
 using Microsoft.Extensions.DependencyInjection;
@@ -11,6 +12,13 @@ public partial class App : System.Windows.Application
 {
     private TaskbarIcon? _trayIcon;
     private ServiceProvider? _services;
+
+    public App()
+    {
+        InitializeComponent();
+        // Brushes must exist before styles resolve; ThemeService replaces this slot on startup.
+        Resources.MergedDictionaries.Insert(0, ThemeResourceDictionaryFactory.Create(ThemePalettes.Dark));
+    }
 
     protected override void OnStartup(StartupEventArgs e)
     {

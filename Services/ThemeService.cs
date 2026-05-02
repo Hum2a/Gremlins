@@ -1,11 +1,11 @@
-using System.Linq;
 using System.Windows;
+using Gremlins.Services.Themes;
 using Microsoft.Win32;
 
 namespace Gremlins.Services;
 
 /// <summary>
-/// Swaps theme resource dictionaries and tracks Dark / Light / Follow system (Windows Apps theme).
+/// Swaps the theme <see cref="ResourceDictionary"/> and keeps <see cref="AppThemePreference"/> in sync with disk.
 /// </summary>
 public sealed class ThemeService : IDisposable
 {
@@ -33,7 +33,6 @@ public sealed class ThemeService : IDisposable
     {
         if (Preference != AppThemePreference.System)
             return;
-        // Dark/light toggle in Windows Settings → Personalization
         if (e.Category != UserPreferenceCategory.General && e.Category != UserPreferenceCategory.Color)
             return;
         System.Windows.Application.Current.Dispatcher.Invoke(ApplyResolvedTheme);
@@ -58,13 +57,7 @@ public sealed class ThemeService : IDisposable
     }
 
     public bool IsEffectiveDarkTheme =>
-        Preference switch
-        {
-            AppThemePreference.Dark   => true,
-            AppThemePreference.Light  => false,
-            AppThemePreference.System => !IsWindowsLightMode(),
-            _                         => true,
-        };
+        ThemePalettes.IsDarkAppearance(Preference, IsWindowsLightMode());
 
     public void SetPreference(AppThemePreference preference)
     {
@@ -73,36 +66,32 @@ public sealed class ThemeService : IDisposable
         ApplyResolvedTheme();
     }
 
-    private void ApplyResolvedTheme() =>
-        MergeTheme(IsEffectiveDarkTheme);
+    private void ApplyResolvedTheme()
+    {
+        ThemeColors colors;
+        if (Preference == AppThemePreference.System)
+            colors = IsWindowsLightMode() ? ThemePalettes.Light : ThemePalettes.Dark;
+        else if (ThemePalettes.TryGet(Preference, out var entry))
+            colors = entry.Colors;
+        else
+            colors = ThemePalettes.Dark;
 
-    private void MergeTheme(bool dark)
+        MergeThemeDictionary(ThemeResourceDictionaryFactory.Create(colors));
+    }
+
+    /// <summary>Theme dictionary must stay merged at index 0 (before <c>Styles.xaml</c>).</summary>
+    private void MergeThemeDictionary(ResourceDictionary next)
     {
         var app = System.Windows.Application.Current;
         var merged = app.Resources.MergedDictionaries;
 
-        var uri = new Uri(
-            dark
-                ? "pack://application:,,,/UI/Themes/Theme.Dark.xaml"
-                : "pack://application:,,,/UI/Themes/Theme.Light.xaml",
-            UriKind.Absolute);
-
-        var next = new ResourceDictionary { Source = uri };
-
         if (_themeDictionary is not null)
             merged.Remove(_themeDictionary);
-        else if (merged.Any() && IsThemeDictionary(merged[0]))
+        else if (merged.Count > 0)
             merged.RemoveAt(0);
 
         merged.Insert(0, next);
         _themeDictionary = next;
-    }
-
-    private static bool IsThemeDictionary(ResourceDictionary d)
-    {
-        var s = d.Source?.ToString() ?? "";
-        return s.Contains("Theme.Dark", StringComparison.OrdinalIgnoreCase)
-            || s.Contains("Theme.Light", StringComparison.OrdinalIgnoreCase);
     }
 
     public void Dispose()

@@ -29,13 +29,7 @@ public class ThemePreferenceLabelConverter : IValueConverter
     public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
     {
         return value is AppThemePreference p
-            ? p switch
-            {
-                AppThemePreference.Dark   => "Dark",
-                AppThemePreference.Light  => "Light",
-                AppThemePreference.System => "Follow system",
-                _                         => p.ToString(),
-            }
+            ? ThemePreferenceLabels.GetDisplayName(p)
             : string.Empty;
     }
 
