@@ -64,7 +64,7 @@
                                     <Setter.Value>
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{TemplateBinding Background}"
-                                                    CornerRadius="4" Padding="4">
+                                                    CornerRadius="8" Padding="4">
                                                 <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
@@ -83,6 +83,8 @@
             </Border>
 
             <TabControl Grid.Row="1" Margin="8,4,8,4"
+                        Style="{StaticResource DashboardTabControl}"
+                        ItemContainerStyle="{StaticResource DashboardTabItem}"
                         Background="Transparent"
                         BorderThickness="0">
                 <TabItem Header="Gremlins">
@@ -387,10 +389,7 @@
                                        Foreground="{DynamicResource BrushTextPrimary}"/>
                             <TextBox Width="320" HorizontalAlignment="Left" Margin="0,4,0,0"
                                      Text="{Binding Behavior.GitHubUpdateRepo, UpdateSourceTrigger=PropertyChanged}"
-                                     ToolTip="owner/repo on GitHub"
-                                     Background="{DynamicResource BrushComboChromeBg}"
-                                     Foreground="{DynamicResource BrushTextPrimary}"
-                                     BorderBrush="{DynamicResource BrushBorder}"/>
+                                     ToolTip="owner/repo on GitHub"/>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                 <Button Content="Check GitHub" Style="{StaticResource ActionButtonSecondary}"
                                         Command="{Binding CheckUpdatesCommand}" Margin="0,0,10,0"/>
