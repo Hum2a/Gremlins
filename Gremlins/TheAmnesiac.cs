@@ -1,7 +1,5 @@
 using Gremlins.Core;
-using System.Windows;
-
-namespace Gremlins.Gremlins;
+namespace Gremlins.Tricks;
 
 /// <summary>
 /// Silently clears the clipboard at random intervals.
@@ -30,9 +28,9 @@ public class TheAmnesiac : BaseGremlin
             if (ct.IsCancellationRequested) break;
 
             // Clipboard must be accessed on STA thread
-            Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                try { Clipboard.Clear(); }
+                try { System.Windows.Clipboard.Clear(); }
                 catch { /* clipboard might be locked by another app */ }
             });
         }

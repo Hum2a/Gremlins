@@ -25,7 +25,7 @@ public abstract partial class BaseGremlin : ObservableObject, IGremlin
 
     partial void OnSeverityChanged(Severity value)
     {
-        OnSeverityChanged(value);
+        ApplySeverity(value);
         if (IsEnabled)
         {
             Stop();
@@ -35,6 +35,9 @@ public abstract partial class BaseGremlin : ObservableObject, IGremlin
 
     public void Start()
     {
+        if (_cts is not null)
+            Stop();
+
         _cts = new CancellationTokenSource();
         _ = RunLoopAsync(_cts.Token);
     }
@@ -48,7 +51,8 @@ public abstract partial class BaseGremlin : ObservableObject, IGremlin
     }
 
     protected virtual void OnStopped() { }
-    public virtual void OnSeverityChanged(Severity severity) { }
+
+    public virtual void ApplySeverity(Severity severity) { }
 
     protected abstract Task RunLoopAsync(CancellationToken ct);
 

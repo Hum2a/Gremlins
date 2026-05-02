@@ -1,6 +1,6 @@
 using Gremlins.Core;
 
-namespace Gremlins.Gremlins;
+namespace Gremlins.Tricks;
 
 /// <summary>
 /// Subtly drifts the mouse cursor a few pixels every so often.

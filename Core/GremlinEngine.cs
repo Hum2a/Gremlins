@@ -1,4 +1,5 @@
-using Gremlins.Gremlins;
+using Gremlins.Tricks;
+using Gremlins.Services;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace Gremlins.Core;

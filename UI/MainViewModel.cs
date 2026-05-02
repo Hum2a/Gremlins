@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Gremlins.Core;
+using Gremlins.Services;
 using System.Collections.ObjectModel;
 
 namespace Gremlins.UI;
@@ -17,6 +18,9 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private string _statusText = "All quiet.";
 
+    [ObservableProperty]
+    private bool _startWithWindows;
+
     public MainViewModel(GremlinEngine engine)
     {
         _engine = engine;
@@ -24,13 +28,16 @@ public partial class MainViewModel : ObservableObject
 
     public void Initialise()
     {
+        StartWithWindows = RegistryStartupHelper.IsEnabled();
+
         foreach (var g in _engine.AllGremlins)
-        {
-            var card = new GremlinCardViewModel(g, this);
-            GremlinCards.Add(card);
-        }
+            GremlinCards.Add(new GremlinCardViewModel(g, this, _engine));
+
         RefreshStatus();
     }
+
+    partial void OnStartWithWindowsChanged(bool value) =>
+        RegistryStartupHelper.SetEnabled(value);
 
     public void RefreshStatus()
     {
@@ -46,49 +53,13 @@ public partial class MainViewModel : ObservableObject
     private void EnableAll()
     {
         foreach (var card in GremlinCards) card.IsEnabled = true;
+        _engine.SaveState();
     }
 
     [RelayCommand]
     private void DisableAll()
     {
         foreach (var card in GremlinCards) card.IsEnabled = false;
+        _engine.SaveState();
     }
-}
-
-public partial class GremlinCardViewModel : ObservableObject
-{
-    private readonly IGremlin _gremlin;
-    private readonly MainViewModel _parent;
-
-    public string Name        => _gremlin.Name;
-    public string Description => _gremlin.Description;
-    public string Emoji       => _gremlin.Emoji;
-
-    [ObservableProperty]
-    private bool _isEnabled;
-
-    [ObservableProperty]
-    private Severity _severity;
-
-    public GremlinCardViewModel(IGremlin gremlin, MainViewModel parent)
-    {
-        _gremlin = gremlin;
-        _parent  = parent;
-        _isEnabled = gremlin.IsEnabled;
-        _severity  = gremlin.Severity;
-    }
-
-    partial void OnIsEnabledChanged(bool value)
-    {
-        _gremlin.IsEnabled = value;
-        _parent.RefreshStatus();
-    }
-
-    partial void OnSeverityChanged(Severity value)
-    {
-        _gremlin.Severity = value;
-    }
-
-    public IEnumerable<Severity> Severities =>
-        Enum.GetValues<Severity>();
 }

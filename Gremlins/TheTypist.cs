@@ -1,7 +1,8 @@
-using Gremlins.Core;
 using System.Runtime.InteropServices;
+using System.Text;
+using Gremlins.Core;
 
-namespace Gremlins.Gremlins;
+namespace Gremlins.Tricks;
 
 /// <summary>
 /// Installs a low-level keyboard hook and occasionally substitutes
@@ -20,100 +21,113 @@ public class TheTypist : BaseGremlin
         ['l'] = 'I', ['I'] = 'l',
         ['o'] = '0', ['0'] = 'o',
         ['1'] = 'l', ['s'] = 'S',
-        ['a'] = 'а', // Cyrillic 'a' — visually identical, functionally different
-        ['e'] = 'е', // Cyrillic 'e'
-        ['p'] = 'р', // Cyrillic 'r'
+        ['a'] = 'а',
+        ['e'] = 'е',
+        ['p'] = 'р',
     };
 
-    // Probability of substitution per keypress (scales with severity)
     private double SubstitutionChance => Severity switch
     {
-        Severity.Mischievous => 0.008, // ~1 in 125 keypresses
-        Severity.Annoying    => 0.02,  // ~1 in 50
-        Severity.Unhinged    => 0.06,  // ~1 in 17
+        Severity.Mischievous => 0.008,
+        Severity.Annoying    => 0.02,
+        Severity.Unhinged    => 0.06,
         _                    => 0.008
     };
 
     private IntPtr _hookId = IntPtr.Zero;
-    private HookProc? _hookProc; // keep delegate alive to prevent GC
+    private Win32.HookProc? _hookProc;
+    private Thread? _hookThread;
+    private uint _hookNativeThreadId;
 
-    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr SetWindowsHookEx(int idHook, HookProc lpfn, IntPtr hMod, uint dwThreadId);
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
-    [DllImport("user32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-
-    [DllImport("kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-    private delegate IntPtr HookProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-    private const int WH_KEYBOARD_LL = 13;
-    private const int WM_KEYDOWN = 0x0100;
-
-    [StructLayout(LayoutKind.Sequential)]
-    private struct KBDLLHOOKSTRUCT
+    protected override async Task RunLoopAsync(CancellationToken ct)
     {
-        public uint vkCode;
-        public uint scanCode;
-        public uint flags;
-        public uint time;
-        public IntPtr dwExtraInfo;
-    }
+        var ready = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _hookProc = HookCallback;
 
-    protected override Task RunLoopAsync(CancellationToken ct)
-    {
-        // Install hook on a dedicated STA thread (required for low-level hooks)
-        var thread = new Thread(() =>
+        _hookThread = new Thread(() =>
         {
-            _hookProc = HookCallback;
-            using var process = System.Diagnostics.Process.GetCurrentProcess();
-            using var module = process.MainModule!;
-            _hookId = SetWindowsHookEx(WH_KEYBOARD_LL, _hookProc,
-                GetModuleHandle(module.ModuleName!), 0);
+            try
+            {
+                using var process = System.Diagnostics.Process.GetCurrentProcess();
+                using var module = process.MainModule!;
+                _hookNativeThreadId = Win32.GetCurrentThreadId();
+                _hookId = Win32.SetWindowsHookEx(
+                    Win32.WH_KEYBOARD_LL,
+                    _hookProc,
+                    Win32.GetModuleHandle(module.ModuleName),
+                    0);
 
-            // Message pump to keep hook alive
-            System.Windows.Forms.Application.Run();
-        });
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.IsBackground = true;
-        thread.Start();
+                if (_hookId == IntPtr.Zero)
+                {
+                    ready.TrySetException(new InvalidOperationException("Keyboard hook installation failed."));
+                    return;
+                }
 
-        // Wait for cancellation then clean up
-        ct.Register(() =>
+                ready.TrySetResult();
+                System.Windows.Forms.Application.Run();
+            }
+            finally
+            {
+                if (_hookId != IntPtr.Zero)
+                {
+                    Win32.UnhookWindowsHookEx(_hookId);
+                    _hookId = IntPtr.Zero;
+                }
+            }
+        })
         {
-            if (_hookId != IntPtr.Zero)
-                UnhookWindowsHookEx(_hookId);
-            System.Windows.Forms.Application.ExitThread();
-        });
+            IsBackground = true,
+            Name = "Gremlins-TheTypist-Hook",
+        };
+        _hookThread.SetApartmentState(ApartmentState.STA);
+        _hookThread.Start();
 
-        return Task.CompletedTask;
+        await ready.Task.ConfigureAwait(false);
+
+        try
+        {
+            await Task.Delay(Timeout.Infinite, ct).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+        }
+
+        if (_hookNativeThreadId != 0)
+            Win32.PostThreadMessage(_hookNativeThreadId, Win32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
+
+        _hookThread?.Join(TimeSpan.FromSeconds(5));
+        _hookThread = null;
+        _hookNativeThreadId = 0;
     }
 
     private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
-        if (nCode >= 0 && wParam == WM_KEYDOWN)
+        if (nCode >= 0 && (wParam == (IntPtr)Win32.WM_KEYDOWN || wParam == (IntPtr)Win32.WM_SYSKEYDOWN))
         {
-            var kb = Marshal.PtrToStructure<KBDLLHOOKSTRUCT>(lParam);
-            char c = (char)kb.vkCode;
+            var kb = Marshal.PtrToStructure<Win32.KBDLLHOOKSTRUCT>(lParam);
 
-            if (Lookalikes.TryGetValue(c, out var replacement)
-                && Random.Shared.NextDouble() < SubstitutionChance)
+            var kbState = new byte[256];
+            Win32.GetKeyboardState(kbState);
+            var sb = new StringBuilder(8);
+            int conv = Win32.ToUnicode(kb.vkCode, kb.scanCode, kbState, sb, sb.Capacity, 0);
+            if (conv == 1 && sb.Length > 0)
             {
-                // Suppress original keypress and send the lookalike
-                SendCharacter(replacement);
-                return (IntPtr)1; // block original key
+                char c = sb[0];
+                if (Lookalikes.TryGetValue(c, out var replacement)
+                    && Random.Shared.NextDouble() < SubstitutionChance)
+                {
+                    SendCharacter(replacement);
+                    return (IntPtr)1;
+                }
             }
         }
 
-        return CallNextHookEx(_hookId, nCode, wParam, lParam);
+        return Win32.CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 
     private static void SendCharacter(char c)
     {
+        ushort u = c;
         var inputs = new Win32.INPUT[]
         {
             new()
@@ -124,7 +138,7 @@ public class TheTypist : BaseGremlin
                     ki = new Win32.KEYBDINPUT
                     {
                         wVk = 0,
-                        wScan = c,
+                        wScan = u,
                         dwFlags = Win32.KEYEVENTF_UNICODE,
                     }
                 }
@@ -137,11 +151,11 @@ public class TheTypist : BaseGremlin
                     ki = new Win32.KEYBDINPUT
                     {
                         wVk = 0,
-                        wScan = c,
+                        wScan = u,
                         dwFlags = Win32.KEYEVENTF_UNICODE | Win32.KEYEVENTF_KEYUP,
                     }
                 }
-            }
+            },
         };
 
         Win32.SendInput((uint)inputs.Length, inputs, Marshal.SizeOf<Win32.INPUT>());

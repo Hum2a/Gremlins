@@ -1,93 +1,115 @@
 using Gremlins.Core;
-using System.Runtime.InteropServices;
 
-namespace Gremlins.Gremlins;
+namespace Gremlins.Tricks;
 
 /// <summary>
-/// Installs a low-level mouse hook that introduces artificial delay,
-/// making the cursor feel like it's running through treacle for ~30 seconds.
-/// Feels exactly like your PC is dying.
+/// Installs a low-level mouse hook that introduces artificial delay during bursts.
 /// </summary>
 public class TheLagGhost : BaseGremlin
 {
     public override string Id          => "the_lag_ghost";
     public override string Name        => "The Lag Ghost";
-    public override string Description => "Introduces a fake input delay for 30 seconds at random. Feels like your PC is crying.";
+    public override string Description => "Introduces fake input delay in bursts. Feels like your PC is crying.";
     public override string Emoji       => "👻";
 
-    private volatile bool _lagging = false;
+    private volatile bool _lagging;
 
-    [DllImport("user32.dll", SetLastError = true)]
-    private static extern IntPtr SetWindowsHookEx(int idHook, MouseHookProc lpfn, IntPtr hMod, uint dwThreadId);
-
-    [DllImport("user32.dll")]
-    private static extern bool UnhookWindowsHookEx(IntPtr hhk);
-
-    [DllImport("user32.dll")]
-    private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-
-    [DllImport("kernel32.dll")]
-    private static extern IntPtr GetModuleHandle(string lpModuleName);
-
-    private delegate IntPtr MouseHookProc(int nCode, IntPtr wParam, IntPtr lParam);
-
-    private const int WH_MOUSE_LL = 14;
     private IntPtr _hookId = IntPtr.Zero;
-    private MouseHookProc? _hookProc;
+    private Win32.HookProc? _hookProc;
+    private Thread? _hookThread;
+    private uint _hookNativeThreadId;
 
     protected override async Task RunLoopAsync(CancellationToken ct)
     {
-        // Install hook on STA thread
-        var hookReady = new TaskCompletionSource();
-        var thread = new Thread(() =>
+        var hookReady = new TaskCompletionSource(TaskCreationOptions.RunContinuationsAsynchronously);
+        _hookProc = HookCallback;
+
+        _hookThread = new Thread(() =>
         {
-            _hookProc = HookCallback;
-            using var process = System.Diagnostics.Process.GetCurrentProcess();
-            using var module = process.MainModule!;
-            _hookId = SetWindowsHookEx(WH_MOUSE_LL, _hookProc,
-                GetModuleHandle(module.ModuleName!), 0);
-            hookReady.SetResult();
-            System.Windows.Forms.Application.Run();
-        });
-        thread.SetApartmentState(ApartmentState.STA);
-        thread.IsBackground = true;
-        thread.Start();
+            try
+            {
+                using var process = System.Diagnostics.Process.GetCurrentProcess();
+                using var module = process.MainModule!;
+                _hookNativeThreadId = Win32.GetCurrentThreadId();
+                _hookId = Win32.SetWindowsHookEx(
+                    Win32.WH_MOUSE_LL,
+                    _hookProc,
+                    Win32.GetModuleHandle(module.ModuleName),
+                    0);
 
-        await hookReady.Task;
+                if (_hookId == IntPtr.Zero)
+                {
+                    hookReady.TrySetException(new InvalidOperationException("Mouse hook installation failed."));
+                    return;
+                }
 
-        ct.Register(() =>
+                hookReady.TrySetResult();
+                System.Windows.Forms.Application.Run();
+            }
+            finally
+            {
+                if (_hookId != IntPtr.Zero)
+                {
+                    Win32.UnhookWindowsHookEx(_hookId);
+                    _hookId = IntPtr.Zero;
+                }
+            }
+        })
+        {
+            IsBackground = true,
+            Name = "Gremlins-LagGhost-Hook",
+        };
+        _hookThread.SetApartmentState(ApartmentState.STA);
+        _hookThread.Start();
+
+        await hookReady.Task.ConfigureAwait(false);
+
+        try
+        {
+            while (!ct.IsCancellationRequested)
+            {
+                var intervalMs = Severity switch
+                {
+                    Severity.Mischievous => RandomBetween(20 * 60_000, 40 * 60_000),
+                    Severity.Annoying    => RandomBetween(8 * 60_000, 15 * 60_000),
+                    Severity.Unhinged    => RandomBetween(2 * 60_000, 5 * 60_000),
+                    _                    => 30 * 60_000
+                };
+
+                await Task.Delay(intervalMs, ct).ConfigureAwait(false);
+
+                int lagDurationMs = Severity switch
+                {
+                    Severity.Mischievous => 20_000,
+                    Severity.Annoying    => 40_000,
+                    Severity.Unhinged    => 90_000,
+                    _                    => 20_000
+                };
+
+                _lagging = true;
+                try
+                {
+                    await Task.Delay(lagDurationMs, ct).ConfigureAwait(false);
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+                finally
+                {
+                    _lagging = false;
+                }
+            }
+        }
+        finally
         {
             _lagging = false;
-            if (_hookId != IntPtr.Zero)
-                UnhookWindowsHookEx(_hookId);
-            System.Windows.Forms.Application.ExitThread();
-        });
+            if (_hookNativeThreadId != 0)
+                Win32.PostThreadMessage(_hookNativeThreadId, Win32.WM_QUIT, IntPtr.Zero, IntPtr.Zero);
 
-        // Main loop: trigger lag bursts at random intervals
-        while (!ct.IsCancellationRequested)
-        {
-            var intervalMs = Severity switch
-            {
-                Severity.Mischievous => RandomBetween(20 * 60_000, 40 * 60_000),
-                Severity.Annoying    => RandomBetween(8 * 60_000, 15 * 60_000),
-                Severity.Unhinged    => RandomBetween(2 * 60_000, 5 * 60_000),
-                _                    => 30 * 60_000
-            };
-
-            await Task.Delay(intervalMs, ct);
-            if (ct.IsCancellationRequested) break;
-
-            int lagDuration = Severity switch
-            {
-                Severity.Mischievous => 20_000,  // 20 seconds
-                Severity.Annoying    => 40_000,  // 40 seconds
-                Severity.Unhinged    => 90_000,  // 1.5 minutes — pure evil
-                _                    => 20_000
-            };
-
-            _lagging = true;
-            await Task.Delay(lagDuration, ct);
-            _lagging = false;
+            _hookThread?.Join(TimeSpan.FromSeconds(5));
+            _hookThread = null;
+            _hookNativeThreadId = 0;
         }
     }
 
@@ -104,6 +126,7 @@ public class TheLagGhost : BaseGremlin
             };
             Thread.Sleep(delayMs);
         }
-        return CallNextHookEx(_hookId, nCode, wParam, lParam);
+
+        return Win32.CallNextHookEx(_hookId, nCode, wParam, lParam);
     }
 }

@@ -18,5 +18,5 @@ public interface IGremlin
 
     void Start();
     void Stop();
-    void OnSeverityChanged(Severity severity);
+    void ApplySeverity(Severity severity);
 }

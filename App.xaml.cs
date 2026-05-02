@@ -7,7 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace Gremlins;
 
-public partial class App : Application
+public partial class App : System.Windows.Application
 {
     private TaskbarIcon? _trayIcon;
     private ServiceProvider? _services;
@@ -42,14 +42,13 @@ public partial class App : Application
         services.AddSingleton<GremlinEngine>();
         services.AddSingleton<MainViewModel>();
 
-        // Register all gremlins
-        services.AddSingleton<Gremlins.Gremlins.TheDrifter>();
-        services.AddSingleton<Gremlins.Gremlins.TheTypist>();
-        services.AddSingleton<Gremlins.Gremlins.TheAmnesiac>();
-        services.AddSingleton<Gremlins.Gremlins.TheCritic>();
-        services.AddSingleton<Gremlins.Gremlins.ThePhilosopher>();
-        services.AddSingleton<Gremlins.Gremlins.TheLagGhost>();
-        services.AddSingleton<Gremlins.Gremlins.TheRearranger>();
+        services.AddSingleton<Tricks.TheDrifter>();
+        services.AddSingleton<Tricks.TheTypist>();
+        services.AddSingleton<Tricks.TheAmnesiac>();
+        services.AddSingleton<Tricks.TheCritic>();
+        services.AddSingleton<Tricks.ThePhilosopher>();
+        services.AddSingleton<Tricks.TheLagGhost>();
+        services.AddSingleton<Tricks.TheRearranger>();
     }
 
     private System.Windows.Controls.ContextMenu BuildTrayMenu()

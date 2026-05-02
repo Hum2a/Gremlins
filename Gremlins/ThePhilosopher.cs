@@ -1,7 +1,5 @@
 using Gremlins.Core;
-using System.Windows;
-
-namespace Gremlins.Gremlins;
+namespace Gremlins.Tricks;
 
 /// <summary>
 /// Replaces your clipboard with a deeply unsettling or absurd quote.
@@ -36,6 +34,7 @@ public class ThePhilosopher : BaseGremlin
         "You are being watched. This is just a reminder.",
         "Please enjoy this moment of clipboard emptiness as a form of mindfulness.",
         "The void stares into you. Also it deleted your clipboard.",
+        "This too shall pass. Probably not the build, though.",
     ];
 
     protected override async Task RunLoopAsync(CancellationToken ct)
@@ -55,9 +54,9 @@ public class ThePhilosopher : BaseGremlin
 
             var quote = Quotes[Random.Shared.Next(Quotes.Length)];
 
-            Application.Current.Dispatcher.Invoke(() =>
+            System.Windows.Application.Current.Dispatcher.Invoke(() =>
             {
-                try { Clipboard.SetText(quote); }
+                try { System.Windows.Clipboard.SetText(quote); }
                 catch { }
             });
         }

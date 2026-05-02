@@ -1,6 +1,6 @@
 using Gremlins.Core;
 
-namespace Gremlins.Gremlins;
+namespace Gremlins.Tricks;
 
 /// <summary>
 /// Every few hours, nudges the position of the currently focused window
