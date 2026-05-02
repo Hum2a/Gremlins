@@ -1,0 +1,40 @@
+using Gremlins.Core;
+using System.Windows;
+
+namespace Gremlins.Gremlins;
+
+/// <summary>
+/// Silently clears the clipboard at random intervals.
+/// You copied something, you go to paste... nothing.
+/// </summary>
+public class TheAmnesiac : BaseGremlin
+{
+    public override string Id          => "the_amnesiac";
+    public override string Name        => "The Amnesiac";
+    public override string Description => "Randomly clears your clipboard. You copied that, right? Are you sure?";
+    public override string Emoji       => "🧠";
+
+    protected override async Task RunLoopAsync(CancellationToken ct)
+    {
+        while (!ct.IsCancellationRequested)
+        {
+            var intervalMs = Severity switch
+            {
+                Severity.Mischievous => RandomBetween(10 * 60_000, 20 * 60_000),
+                Severity.Annoying    => RandomBetween(4 * 60_000, 8 * 60_000),
+                Severity.Unhinged    => RandomBetween(60_000, 3 * 60_000),
+                _                    => 10 * 60_000
+            };
+
+            await Task.Delay(intervalMs, ct);
+            if (ct.IsCancellationRequested) break;
+
+            // Clipboard must be accessed on STA thread
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                try { Clipboard.Clear(); }
+                catch { /* clipboard might be locked by another app */ }
+            });
+        }
+    }
+}

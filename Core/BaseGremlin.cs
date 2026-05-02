@@ -1,0 +1,72 @@
+using CommunityToolkit.Mvvm.ComponentModel;
+
+namespace Gremlins.Core;
+
+public abstract partial class BaseGremlin : ObservableObject, IGremlin
+{
+    private CancellationTokenSource? _cts;
+
+    public abstract string Id { get; }
+    public abstract string Name { get; }
+    public abstract string Description { get; }
+    public abstract string Emoji { get; }
+
+    [ObservableProperty]
+    private bool _isEnabled;
+
+    [ObservableProperty]
+    private Severity _severity = Severity.Mischievous;
+
+    partial void OnIsEnabledChanged(bool value)
+    {
+        if (value) Start();
+        else Stop();
+    }
+
+    partial void OnSeverityChanged(Severity value)
+    {
+        OnSeverityChanged(value);
+        if (IsEnabled)
+        {
+            Stop();
+            Start();
+        }
+    }
+
+    public void Start()
+    {
+        _cts = new CancellationTokenSource();
+        _ = RunLoopAsync(_cts.Token);
+    }
+
+    public void Stop()
+    {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
+        OnStopped();
+    }
+
+    protected virtual void OnStopped() { }
+    public virtual void OnSeverityChanged(Severity severity) { }
+
+    protected abstract Task RunLoopAsync(CancellationToken ct);
+
+    /// <summary>
+    /// Returns a delay in milliseconds scaled to the severity.
+    /// Higher severity = shorter intervals = more chaos.
+    /// </summary>
+    protected int GetIntervalMs(int baseMs)
+    {
+        return Severity switch
+        {
+            Severity.Mischievous => baseMs,
+            Severity.Annoying    => baseMs / 2,
+            Severity.Unhinged    => baseMs / 5,
+            _                    => baseMs
+        };
+    }
+
+    protected static int RandomBetween(int min, int max) =>
+        Random.Shared.Next(min, max + 1);
+}
