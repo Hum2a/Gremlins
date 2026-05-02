@@ -23,6 +23,9 @@
 .NOTES
   - Store uploads are re-signed by Microsoft; local signing is optional (sideload testing).
   - Use /p:PublishSingleFile=false below for fewer packaging edge cases (adjust if you prefer single-file).
+  - Microsoft Store requires manifest Version Major.Minor.Build.Revision where **Revision (4th) must be 0**.
+    Example: 1.0.0.0 or 0.0.1.0 — never 0.0.0.1.
+  - runFullTrust triggers a Partner Center policy review for desktop bridge apps (expected for Win32 MSIX).
 #>
 [CmdletBinding()]
 param(
@@ -51,6 +54,34 @@ param(
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
+
+function Assert-StoreMsixVersion {
+    param([string] $Version)
+    $parts = $Version -split '\.'
+    if ($parts.Count -ne 4) {
+        Write-Error "Version must be quad format Major.Minor.Build.Revision (e.g. 1.0.0.0). Got: $Version"
+    }
+    foreach ($p in $parts) {
+        if ($p -notmatch '^\d+$') { Write-Error "Version parts must be non-negative integers. Got: $Version" }
+        $n = [int]$p
+        if ($n -lt 0 -or $n -gt 65535) { Write-Error "Each version part must be 0–65535 (Store rules). Got: $Version" }
+    }
+    if ([int]$parts[3] -ne 0) {
+        Write-Error @"
+Microsoft Store rejects packages whose manifest revision (4th segment) is not 0.
+You passed: $Version  → revision is $($parts[3]).
+
+Examples that are valid:
+  1.0.0.0   first submission
+  1.0.1.0   patch bump (move the “1” to Build, keep Revision 0)
+  2.0.0.0   major bump
+
+Invalid for Store: 0.0.0.1 (revision must be 0, not 1).
+"@
+    }
+}
+
+Assert-StoreMsixVersion -Version $Version
 
 function Find-MakeAppx {
     param([string[]] $SearchRoots)
