@@ -12,7 +12,7 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheTypist : BaseGremlin
 {
-    public TheTypist(ExecutionGate gate) : base(gate) { }
+    public TheTypist(ExecutionGate gate, PreferencesService prefs) : base(gate, prefs) { }
 
     public override string Id          => "the_typist";
     public override string Name        => "The Typist";
@@ -29,13 +29,20 @@ public class TheTypist : BaseGremlin
         ['p'] = 'р',
     };
 
-    private double SubstitutionChance => Severity switch
+    private double GetSubstitutionChance()
     {
-        Severity.Mischievous => 0.008,
-        Severity.Annoying    => 0.02,
-        Severity.Unhinged    => 0.06,
-        _                    => 0.008
-    };
+        var t = Prefs.Current.Typist;
+        if (t.UseCustomSettings)
+            return Math.Clamp(t.SubstitutionChancePercent / 100.0, 0.0005, 0.35);
+
+        return Severity switch
+        {
+            Severity.Mischievous => 0.008,
+            Severity.Annoying    => 0.02,
+            Severity.Unhinged    => 0.06,
+            _                    => 0.008
+        };
+    }
 
     private IntPtr _hookId = IntPtr.Zero;
     private Win32.HookProc? _hookProc;
@@ -120,7 +127,7 @@ public class TheTypist : BaseGremlin
             {
                 char c = sb[0];
                 if (Lookalikes.TryGetValue(c, out var replacement)
-                    && Random.Shared.NextDouble() < SubstitutionChance)
+                    && Random.Shared.NextDouble() < GetSubstitutionChance())
                 {
                     SendCharacter(replacement);
                     Gate.LogGremlin(Name, $"swapped “{c}” → lookalike");

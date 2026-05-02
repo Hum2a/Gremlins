@@ -82,7 +82,8 @@
                 </Grid>
             </Border>
 
-            <TabControl Grid.Row="1" Margin="8,4,8,4"
+            <TabControl Grid.Row="1" Margin="8,8,8,8"
+                        ClipToBounds="False"
                         Style="{StaticResource DashboardTabControl}"
                         ItemContainerStyle="{StaticResource DashboardTabItem}"
                         Background="Transparent"
@@ -90,12 +91,64 @@
                 <TabItem Header="Gremlins">
                     <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                <Button Content="Enable all" Style="{StaticResource ActionButtonPrimary}"
-                                        Command="{Binding EnableAllCommand}" Margin="0,0,10,0"/>
-                                <Button Content="Disable all" Style="{StaticResource ActionButtonSecondary}"
-                                        Command="{Binding DisableAllCommand}"/>
-                            </StackPanel>
+                            <Border Style="{StaticResource BulkActionsShell}" Margin="0,0,0,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="1"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <Button Grid.Column="0"
+                                            Content="Enable all"
+                                            Command="{Binding EnableAllCommand}"
+                                            ToolTip="Turn every gremlin on">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource BulkSegmentButtonBase}">
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding HighlightBulkEnable}" Value="False"/>
+                                                            <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="{DynamicResource BrushComboItemHover}"/>
+                                                    </MultiDataTrigger>
+                                                    <DataTrigger Binding="{Binding HighlightBulkEnable}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource BrushActionPrimaryBg}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushTitleAccent}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource BrushAccentGreen}"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                    <Border Grid.Column="1" Background="{DynamicResource BrushBorder}" Opacity="0.65"/>
+                                    <Button Grid.Column="2"
+                                            Content="Disable all"
+                                            Command="{Binding DisableAllCommand}"
+                                            ToolTip="Turn every gremlin off">
+                                        <Button.Style>
+                                            <Style TargetType="Button" BasedOn="{StaticResource BulkSegmentButtonBase}">
+                                                <Style.Triggers>
+                                                    <MultiDataTrigger>
+                                                        <MultiDataTrigger.Conditions>
+                                                            <Condition Binding="{Binding HighlightBulkDisable}" Value="False"/>
+                                                            <Condition Binding="{Binding RelativeSource={RelativeSource Self}, Path=IsMouseOver}" Value="True"/>
+                                                        </MultiDataTrigger.Conditions>
+                                                        <Setter Property="Background" Value="{DynamicResource BrushComboItemHover}"/>
+                                                    </MultiDataTrigger>
+                                                    <DataTrigger Binding="{Binding HighlightBulkDisable}" Value="True">
+                                                        <Setter Property="Background" Value="{DynamicResource BrushActionPrimaryBg}"/>
+                                                        <Setter Property="Foreground" Value="{DynamicResource BrushTitleAccent}"/>
+                                                        <Setter Property="BorderBrush" Value="{DynamicResource BrushAccentGreen}"/>
+                                                        <Setter Property="BorderThickness" Value="0,0,0,2"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
+                                </Grid>
+                            </Border>
                             <ItemsControl ItemsSource="{Binding GremlinCards}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type local:GremlinCardViewModel}">
@@ -135,11 +188,17 @@
                                                     </StackPanel>
                                                 </StackPanel>
 
-                                                <ToggleButton Grid.Column="2"
-                                                                Style="{StaticResource ToggleStyle}"
-                                                                IsChecked="{Binding IsEnabled}"
-                                                                VerticalAlignment="Center"
-                                                                Margin="12,0,0,0"/>
+                                                <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                            VerticalAlignment="Center" Margin="12,0,0,0">
+                                                    <Button Content="⚙"
+                                                            ToolTip="Custom settings for this gremlin"
+                                                            Style="{StaticResource CardGearButton}"
+                                                            Command="{Binding OpenGremlinSettingsCommand}"
+                                                            Margin="0,0,10,0"/>
+                                                    <ToggleButton Style="{StaticResource ToggleStyle}"
+                                                                  IsChecked="{Binding IsEnabled}"
+                                                                  VerticalAlignment="Center"/>
+                                                </StackPanel>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -311,6 +370,36 @@
                             <CheckBox Content="Tiny UI sound when toggling a gremlin"
                                       IsChecked="{Binding Behavior.UiSoundsEnabled}"
                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <TextBlock Text="Preset (used when no custom file is set below)"
+                                       FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,10,0,4"/>
+                            <ComboBox ItemsSource="{Binding UiSoundPresetOptions}"
+                                      SelectedValue="{Binding Behavior.UiSoundPreset}"
+                                      SelectedValuePath="Preset"
+                                      DisplayMemberPath="Label"/>
+                            <TextBlock Text="Custom UI sound (.wav / .mp3) — overrides preset"
+                                       FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,12,0,4"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding Behavior.UiSoundCustomPath, UpdateSourceTrigger=PropertyChanged}"
+                                         ToolTip="Leave empty to use the preset above"/>
+                                <Button Grid.Column="1" Content="Browse…" Margin="8,0,0,0"
+                                        Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding BrowseUiSoundFileCommand}"/>
+                            </Grid>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Content="Clear file" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding ClearUiSoundCustomCommand}"/>
+                                <Button Content="Preview" Style="{StaticResource ActionButtonPrimary}"
+                                        Command="{Binding PreviewUiSoundCommand}" Margin="8,0,0,0"/>
+                            </StackPanel>
+                            <TextBlock Text="Volume for custom file only (system presets use Windows volume)"
+                                       FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,10,0,4"/>
+                            <Slider Minimum="0" Maximum="100"
+                                    Value="{Binding Behavior.UiSoundVolumePercent}"/>
                         </StackPanel>
                     </ScrollViewer>
                 </TabItem>

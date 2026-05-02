@@ -25,6 +25,12 @@ public partial class MainViewModel : ObservableObject
 
     public ActivityLogService ActivityLog => _activityLog;
 
+    public IReadOnlyList<UiSoundPresetOption> UiSoundPresetOptions { get; } =
+        Enum.GetValues<UiSoundPreset>()
+            .Cast<UiSoundPreset>()
+            .Select(p => new UiSoundPresetOption(p, UiSoundPresetLabels.GetLabel(p)))
+            .ToArray();
+
     private static AppThemePreference[] BuildThemeOrder()
     {
         AppThemePreference[] head =
@@ -110,6 +116,14 @@ public partial class MainViewModel : ObservableObject
     partial void OnThemePreferenceChanged(AppThemePreference value) =>
         _themeService.SetPreference(value);
 
+    /// <summary>True when every gremlin is off — “Enable all” is the emphasized segment.</summary>
+    public bool HighlightBulkEnable =>
+        GremlinCards.Count > 0 && GremlinCards.All(c => !c.IsEnabled);
+
+    /// <summary>True when every gremlin is on — “Disable all” is the emphasized segment.</summary>
+    public bool HighlightBulkDisable =>
+        GremlinCards.Count > 0 && GremlinCards.All(c => c.IsEnabled);
+
     public void RefreshStatus()
     {
         ActiveCount = GremlinCards.Count(c => c.IsEnabled);
@@ -118,6 +132,8 @@ public partial class MainViewModel : ObservableObject
             : ActiveCount == 1
                 ? "1 gremlin is loose."
                 : $"{ActiveCount} gremlins are loose.";
+        OnPropertyChanged(nameof(HighlightBulkEnable));
+        OnPropertyChanged(nameof(HighlightBulkDisable));
     }
 
     [RelayCommand]
@@ -179,6 +195,31 @@ public partial class MainViewModel : ObservableObject
 
     [RelayCommand]
     private void ClearActivityLog() => _activityLog.Clear();
+
+    [RelayCommand]
+    private void BrowseUiSoundFile()
+    {
+        var dlg = new Microsoft.Win32.OpenFileDialog
+        {
+            Filter = "Audio files|*.wav;*.mp3|All files|*.*",
+            Title = "Choose gremlin toggle sound",
+        };
+        if (dlg.ShowDialog() == true)
+        {
+            Behavior.UiSoundCustomPath = dlg.FileName;
+            _preferencesService.SaveImmediate();
+        }
+    }
+
+    [RelayCommand]
+    private void ClearUiSoundCustom()
+    {
+        Behavior.UiSoundCustomPath = "";
+        _preferencesService.SaveImmediate();
+    }
+
+    [RelayCommand]
+    private void PreviewUiSound() => UiSoundPlayback.PreviewToggleSound(Behavior);
 
     [RelayCommand]
     private async Task CheckUpdatesAsync()

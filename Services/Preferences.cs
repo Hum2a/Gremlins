@@ -11,6 +11,15 @@ public partial class Preferences : ObservableObject
 
     [ObservableProperty] private bool _uiSoundsEnabled;
 
+    /// <summary>Used when <see cref="UiSoundCustomPath"/> is empty or missing.</summary>
+    [ObservableProperty] private UiSoundPreset _uiSoundPreset = UiSoundPreset.Asterisk;
+
+    /// <summary>Optional .wav / .mp3 for gremlin toggle sound; overrides <see cref="UiSoundPreset"/> when set.</summary>
+    [ObservableProperty] private string _uiSoundCustomPath = "";
+
+    /// <summary>Volume 0–100 for <see cref="UiSoundCustomPath"/> only (system presets use Windows mix).</summary>
+    [ObservableProperty] private int _uiSoundVolumePercent = 80;
+
     [ObservableProperty] private bool _quietHoursEnabled;
 
     /// <summary>Minutes from midnight when quiet hours start (e.g. 1320 = 22:00).</summary>

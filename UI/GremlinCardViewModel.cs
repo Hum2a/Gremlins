@@ -1,4 +1,5 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using CommunityToolkit.Mvvm.Input;
 using Gremlins.Core;
 using Gremlins.Services;
 
@@ -47,8 +48,8 @@ public partial class GremlinCardViewModel : ObservableObject
         _parent.RefreshStatus();
         if (!_suppressPersist)
             _engine.SaveState();
-        if (!_suppressPersist && _preferences.Current.UiSoundsEnabled)
-            System.Media.SystemSounds.Asterisk.Play();
+        if (!_suppressPersist)
+            UiSoundPlayback.PlayToggleSound(_preferences.Current);
     }
 
     partial void OnSeverityChanged(Severity value)
@@ -59,4 +60,14 @@ public partial class GremlinCardViewModel : ObservableObject
     }
 
     public IEnumerable<Severity> Severities => Enum.GetValues<Severity>();
+
+    [RelayCommand]
+    private void OpenGremlinSettings()
+    {
+        var dlg = new GremlinSettingsWindow(_gremlin.Id, _preferences)
+        {
+            Owner = System.Windows.Application.Current.MainWindow,
+        };
+        dlg.ShowDialog();
+    }
 }

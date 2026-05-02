@@ -8,7 +8,7 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheLagGhost : BaseGremlin
 {
-    public TheLagGhost(ExecutionGate gate) : base(gate) { }
+    public TheLagGhost(ExecutionGate gate, PreferencesService prefs) : base(gate, prefs) { }
 
     public override string Id          => "the_lag_ghost";
     public override string Name        => "The Lag Ghost";
@@ -71,27 +71,23 @@ public class TheLagGhost : BaseGremlin
         {
             while (!ct.IsCancellationRequested)
             {
-                var intervalMs = Severity switch
-                {
-                    Severity.Mischievous => RandomBetween(20 * 60_000, 40 * 60_000),
-                    Severity.Annoying    => RandomBetween(8 * 60_000, 15 * 60_000),
-                    Severity.Unhinged    => RandomBetween(2 * 60_000, 5 * 60_000),
-                    _                    => 30 * 60_000
-                };
-
+                var intervalMs = NextOuterIntervalMs();
                 intervalMs = ApplyIdleBoost(intervalMs);
                 await Task.Delay(intervalMs, ct).ConfigureAwait(false);
 
                 if (!Gate.ShouldExecute())
                     continue;
 
-                int lagDurationMs = Severity switch
-                {
-                    Severity.Mischievous => 20_000,
-                    Severity.Annoying    => 40_000,
-                    Severity.Unhinged    => 90_000,
-                    _                    => 20_000
-                };
+                var lg = Prefs.Current.LagGhost;
+                int lagDurationMs = lg.UseCustomSettings
+                    ? Math.Clamp(lg.BurstDurationSeconds, 5, 600) * 1000
+                    : Severity switch
+                    {
+                        Severity.Mischievous => 20_000,
+                        Severity.Annoying    => 40_000,
+                        Severity.Unhinged    => 90_000,
+                        _                    => 20_000
+                    };
 
                 _lagging = true;
                 Gate.LogGremlin(Name, "lag burst started");
@@ -128,16 +124,47 @@ public class TheLagGhost : BaseGremlin
 
         if (nCode >= 0 && _lagging)
         {
-            int delayMs = Severity switch
+            var lg = Prefs.Current.LagGhost;
+            int delayMs;
+            if (lg.UseCustomSettings)
             {
-                Severity.Mischievous => RandomBetween(150, 300),
-                Severity.Annoying    => RandomBetween(250, 500),
-                Severity.Unhinged    => RandomBetween(400, 800),
-                _                    => 200
-            };
+                var a = Math.Clamp(Math.Min(lg.LagDelayMinMs, lg.LagDelayMaxMs), 10, 3000);
+                var b = Math.Clamp(Math.Max(lg.LagDelayMinMs, lg.LagDelayMaxMs), a, 3000);
+                delayMs = RandomBetween(a, b);
+            }
+            else
+            {
+                delayMs = Severity switch
+                {
+                    Severity.Mischievous => RandomBetween(150, 300),
+                    Severity.Annoying    => RandomBetween(250, 500),
+                    Severity.Unhinged    => RandomBetween(400, 800),
+                    _                    => 200
+                };
+            }
+
             Thread.Sleep(delayMs);
         }
 
         return Win32.CallNextHookEx(_hookId, nCode, wParam, lParam);
+    }
+
+    private int NextOuterIntervalMs()
+    {
+        var lg = Prefs.Current.LagGhost;
+        if (lg.UseCustomSettings)
+        {
+            var lo = Math.Clamp(Math.Min(lg.OuterMinSeconds, lg.OuterMaxSeconds), 30, 86400);
+            var hi = Math.Clamp(Math.Max(lg.OuterMinSeconds, lg.OuterMaxSeconds), lo, 86400);
+            return RandomBetween(lo * 1000, hi * 1000);
+        }
+
+        return Severity switch
+        {
+            Severity.Mischievous => RandomBetween(20 * 60_000, 40 * 60_000),
+            Severity.Annoying    => RandomBetween(8 * 60_000, 15 * 60_000),
+            Severity.Unhinged    => RandomBetween(2 * 60_000, 5 * 60_000),
+            _                    => 30 * 60_000
+        };
     }
 }

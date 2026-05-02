@@ -42,6 +42,12 @@ public partial class CriticGremlinSettings : ObservableObject
 
     /// <summary>Extra comma-separated substrings to match in the foreground window title (case-insensitive).</summary>
     [ObservableProperty] private string _extraTitleKeywords = "";
+
+    /// <summary>Loudness for built-in generated sigh or <see cref="CustomSighSoundPath"/> (1–100).</summary>
+    [ObservableProperty] private int _sighVolumePercent = 30;
+
+    /// <summary>Optional .wav / .mp3; overrides generated sigh when file exists.</summary>
+    [ObservableProperty] private string _customSighSoundPath = "";
 }
 
 public partial class PhilosopherGremlinSettings : ObservableObject

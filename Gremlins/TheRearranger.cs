@@ -9,7 +9,7 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheRearranger : BaseGremlin
 {
-    public TheRearranger(ExecutionGate gate) : base(gate) { }
+    public TheRearranger(ExecutionGate gate, PreferencesService prefs) : base(gate, prefs) { }
 
     public override string Id          => "the_rearranger";
     public override string Name        => "The Rearranger";
@@ -20,14 +20,7 @@ public class TheRearranger : BaseGremlin
     {
         while (!ct.IsCancellationRequested)
         {
-            var intervalMs = Severity switch
-            {
-                Severity.Mischievous => RandomBetween(3 * 60 * 60_000, 6 * 60 * 60_000), // 3–6 hrs
-                Severity.Annoying    => RandomBetween(60 * 60_000, 2 * 60 * 60_000),      // 1–2 hrs
-                Severity.Unhinged    => RandomBetween(15 * 60_000, 30 * 60_000),          // 15–30 min
-                _                    => 4 * 60 * 60_000
-            };
-
+            var intervalMs = NextIntervalMs();
             intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
@@ -46,13 +39,15 @@ public class TheRearranger : BaseGremlin
         if (hwnd == IntPtr.Zero) return;
         if (!Win32.GetWindowRect(hwnd, out var rect)) return;
 
-        int maxNudge = Severity switch
-        {
-            Severity.Mischievous => 8,
-            Severity.Annoying    => 20,
-            Severity.Unhinged    => 50,
-            _                    => 8
-        };
+        int maxNudge = Prefs.Current.Rearranger.UseCustomSettings
+            ? Math.Clamp(Prefs.Current.Rearranger.MaxNudgePixels, 2, 120)
+            : Severity switch
+            {
+                Severity.Mischievous => 8,
+                Severity.Annoying    => 20,
+                Severity.Unhinged    => 50,
+                _                    => 8
+            };
 
         int dx = RandomBetween(-maxNudge, maxNudge);
         int dy = RandomBetween(-maxNudge, maxNudge);
@@ -70,5 +65,24 @@ public class TheRearranger : BaseGremlin
             0, 0,
             Win32.SWP_NOSIZE | Win32.SWP_NOZORDER | Win32.SWP_NOACTIVATE
         );
+    }
+
+    private int NextIntervalMs()
+    {
+        var r = Prefs.Current.Rearranger;
+        if (r.UseCustomSettings)
+        {
+            var lo = Math.Clamp(Math.Min(r.MinIntervalMinutes, r.MaxIntervalMinutes), 1, 24 * 60);
+            var hi = Math.Clamp(Math.Max(r.MinIntervalMinutes, r.MaxIntervalMinutes), lo, 24 * 60);
+            return RandomBetween(lo * 60_000, hi * 60_000);
+        }
+
+        return Severity switch
+        {
+            Severity.Mischievous => RandomBetween(3 * 60 * 60_000, 6 * 60 * 60_000),
+            Severity.Annoying    => RandomBetween(60 * 60_000, 2 * 60 * 60_000),
+            Severity.Unhinged    => RandomBetween(15 * 60_000, 30 * 60_000),
+            _                    => 4 * 60 * 60_000
+        };
     }
 }

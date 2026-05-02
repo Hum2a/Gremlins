@@ -9,7 +9,7 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheAmnesiac : BaseGremlin
 {
-    public TheAmnesiac(ExecutionGate gate) : base(gate) { }
+    public TheAmnesiac(ExecutionGate gate, PreferencesService prefs) : base(gate, prefs) { }
 
     public override string Id          => "the_amnesiac";
     public override string Name        => "The Amnesiac";
@@ -20,14 +20,7 @@ public class TheAmnesiac : BaseGremlin
     {
         while (!ct.IsCancellationRequested)
         {
-            var intervalMs = Severity switch
-            {
-                Severity.Mischievous => RandomBetween(10 * 60_000, 20 * 60_000),
-                Severity.Annoying    => RandomBetween(4 * 60_000, 8 * 60_000),
-                Severity.Unhinged    => RandomBetween(60_000, 3 * 60_000),
-                _                    => 10 * 60_000
-            };
-
+            var intervalMs = NextIntervalMs();
             intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
@@ -43,5 +36,24 @@ public class TheAmnesiac : BaseGremlin
             });
             Gate.LogGremlin(Name, "cleared clipboard");
         }
+    }
+
+    private int NextIntervalMs()
+    {
+        var a = Prefs.Current.Amnesiac;
+        if (a.UseCustomSettings)
+        {
+            var lo = Math.Clamp(Math.Min(a.MinIntervalMinutes, a.MaxIntervalMinutes), 1, 240);
+            var hi = Math.Clamp(Math.Max(a.MinIntervalMinutes, a.MaxIntervalMinutes), lo, 240);
+            return RandomBetween(lo * 60_000, hi * 60_000);
+        }
+
+        return Severity switch
+        {
+            Severity.Mischievous => RandomBetween(10 * 60_000, 20 * 60_000),
+            Severity.Annoying    => RandomBetween(4 * 60_000, 8 * 60_000),
+            Severity.Unhinged    => RandomBetween(60_000, 3 * 60_000),
+            _                    => 10 * 60_000
+        };
     }
 }
