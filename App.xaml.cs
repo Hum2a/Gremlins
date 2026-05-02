@@ -56,6 +56,9 @@ public partial class App : System.Windows.Application
     {
         services.AddSingleton<SettingsService>();
         services.AddSingleton<UiSettingsService>();
+        services.AddSingleton<PreferencesService>();
+        services.AddSingleton<ActivityLogService>();
+        services.AddSingleton<ExecutionGate>();
         services.AddSingleton<ThemeService>();
         services.AddSingleton<GremlinEngine>();
         services.AddSingleton<MainViewModel>();

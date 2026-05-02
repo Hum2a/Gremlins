@@ -1,5 +1,4 @@
 using System.Windows.Threading;
-using Gremlins.Core;
 
 namespace Gremlins.Services;
 
@@ -51,11 +50,18 @@ public sealed class ExecutionGate : IDisposable
                 return false;
         }
 
-        if (p.QuietHoursEnabled && InQuietHours())
+        var now = DateTime.Now;
+        if (p.QuietHoursEnabled &&
+            SchedulingRules.IsInQuietHours(p.QuietStartMinutes, p.QuietEndMinutes, now))
             return false;
 
-        if (p.ScheduleEnabled && !ScheduleAllows())
-            return false;
+        if (p.ScheduleEnabled)
+        {
+            if (!SchedulingRules.ScheduleDayPatternAllows(now.DayOfWeek, p.ScheduleWeekdaysOnly, p.ScheduleWeekendsOnly))
+                return false;
+            if (!SchedulingRules.ScheduleHourWindowAllows(p.ScheduleFromHour, p.ScheduleToHour, now))
+                return false;
+        }
 
         if (p.RespectPresentationMode && _presenting)
             return false;
@@ -63,7 +69,8 @@ public sealed class ExecutionGate : IDisposable
         if (p.RespectFullScreenApps && _fullScreenOrBusy)
             return false;
 
-        if (p.FocusRulesEnabled && IsForegroundDenied())
+        if (p.FocusRulesEnabled &&
+            SchedulingRules.ForegroundMatchesDenyList(p.FocusDenyExeList, _foregroundExe))
             return false;
 
         return true;
@@ -73,13 +80,7 @@ public sealed class ExecutionGate : IDisposable
     public double IdleIntervalMultiplier()
     {
         var p = _prefs.Current;
-        if (!p.IdleIntensityEnabled)
-            return 1.0;
-        var idle = IdleTime.GetIdleSeconds();
-        if (idle < p.IdleBoostAfterSeconds)
-            return 1.0;
-        var t = Math.Min(1.0, (idle - p.IdleBoostAfterSeconds) / 600.0);
-        return 1.0 + t * 0.45;
+        return IdlePolicy.IntervalMultiplier(p.IdleIntensityEnabled, IdleTime.GetIdleSeconds(), p.IdleBoostAfterSeconds);
     }
 
     public void TriggerPanic()
@@ -100,59 +101,6 @@ public sealed class ExecutionGate : IDisposable
         if (!_prefs.Current.ActivityLogEnabled)
             return;
         _log.Add($"{gremlinName}: {detail}");
-    }
-
-    private bool InQuietHours()
-    {
-        var nowMin = DateTime.Now.TimeOfDay.TotalMinutes;
-        var start = Math.Clamp(_prefs.Current.QuietStartMinutes, 0, 24 * 60 - 1);
-        var end = Math.Clamp(_prefs.Current.QuietEndMinutes, 0, 24 * 60 - 1);
-        if (Math.Abs(start - end) < 1)
-            return false;
-        if (start < end)
-            return nowMin >= start && nowMin < end;
-        return nowMin >= start || nowMin < end;
-    }
-
-    private bool ScheduleAllows()
-    {
-        var p = _prefs.Current;
-        var now = DateTime.Now;
-        var dow = now.DayOfWeek;
-        var weekend = dow is DayOfWeek.Saturday or DayOfWeek.Sunday;
-        if (p.ScheduleWeekdaysOnly && weekend)
-            return false;
-        if (p.ScheduleWeekendsOnly && !weekend)
-            return false;
-
-        var h = now.Hour;
-        var from = Math.Clamp(p.ScheduleFromHour, 0, 23);
-        var to = Math.Clamp(p.ScheduleToHour, 0, 23);
-        if (from == to)
-            return true;
-        if (from < to)
-            return h >= from && h < to;
-        return h >= from || h < to;
-    }
-
-    private bool IsForegroundDenied()
-    {
-        var raw = _prefs.Current.FocusDenyExeList;
-        if (string.IsNullOrWhiteSpace(raw))
-            return false;
-        var exe = _foregroundExe;
-        if (string.IsNullOrEmpty(exe))
-            return false;
-        foreach (var part in raw.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-        {
-            var target = part.ToLowerInvariant();
-            if (!target.EndsWith(".exe", StringComparison.Ordinal))
-                target += ".exe";
-            if (exe.Equals(target, StringComparison.OrdinalIgnoreCase))
-                return true;
-        }
-
-        return false;
     }
 
     public void Dispose()
