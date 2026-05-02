@@ -42,6 +42,9 @@
                                        FontFamily="Consolas"/>
                             <TextBlock Text="{Binding StatusText}"
                                        FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
+                            <TextBlock Text="{Binding AppVersionLabel}"
+                                       FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
+                                       Opacity="0.85" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
 
@@ -151,7 +154,8 @@
                         <TextBlock Text="Appearance:" FontSize="11"
                                    Foreground="{DynamicResource BrushTextMuted}"
                                    VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <ComboBox Width="200"
+                        <ComboBox Width="220"
+                                  MaxDropDownHeight="320"
                                   ItemsSource="{Binding ThemeOptions}"
                                   SelectedItem="{Binding ThemePreference}">
                             <ComboBox.ItemTemplate>

@@ -33,6 +33,7 @@ Runs quietly in the system tray and applies small, deniable chaos to your PC.
 
 | | |
 | :-- | :-- |
+| **App version:** | `1.0.0` |
 | **Installer** | [Download Gremlins-Setup-1.0.0.exe](https://github.com/yourname/gremlins/releases/latest) — available after you publish a release |
 | **Portable** | `Gremlins.exe` from the same release page — no install required |
 
