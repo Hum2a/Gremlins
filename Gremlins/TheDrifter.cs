@@ -11,7 +11,7 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheDrifter : BaseGremlin
 {
-    public TheDrifter(ExecutionGate gate) : base(gate) { }
+    public TheDrifter(ExecutionGate gate, PreferencesService prefs) : base(gate, prefs) { }
 
     public override string Id          => "the_drifter";
     public override string Name        => "The Drifter";
@@ -22,14 +22,7 @@ public class TheDrifter : BaseGremlin
     {
         while (!ct.IsCancellationRequested)
         {
-            var intervalMs = Severity switch
-            {
-                Severity.Mischievous => RandomBetween(4 * 60_000, 8 * 60_000),
-                Severity.Annoying    => RandomBetween(2 * 60_000, 4 * 60_000),
-                Severity.Unhinged    => RandomBetween(30_000, 60_000),
-                _                    => 5 * 60_000
-            };
-
+            var intervalMs = NextIntervalMs();
             intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
@@ -42,17 +35,38 @@ public class TheDrifter : BaseGremlin
         }
     }
 
+    private int NextIntervalMs()
+    {
+        var d = Prefs.Current.Drifter;
+        if (d.UseCustomSettings)
+        {
+            var lo = Math.Clamp(Math.Min(d.MinIntervalSeconds, d.MaxIntervalSeconds), 10, 7200);
+            var hi = Math.Clamp(Math.Max(d.MinIntervalSeconds, d.MaxIntervalSeconds), lo, 7200);
+            return RandomBetween(lo * 1000, hi * 1000);
+        }
+
+        return Severity switch
+        {
+            Severity.Mischievous => RandomBetween(4 * 60_000, 8 * 60_000),
+            Severity.Annoying    => RandomBetween(2 * 60_000, 4 * 60_000),
+            Severity.Unhinged    => RandomBetween(30_000, 60_000),
+            _                    => 5 * 60_000
+        };
+    }
+
     private void DriftCursor()
     {
         if (!Win32.GetCursorPos(out var pos)) return;
 
-        int maxDrift = Severity switch
-        {
-            Severity.Mischievous => 4,
-            Severity.Annoying    => 8,
-            Severity.Unhinged    => 20,
-            _                    => 4
-        };
+        int maxDrift = Prefs.Current.Drifter.UseCustomSettings
+            ? Math.Clamp(Prefs.Current.Drifter.MaxDriftPixels, 1, 120)
+            : Severity switch
+            {
+                Severity.Mischievous => 4,
+                Severity.Annoying    => 8,
+                Severity.Unhinged    => 20,
+                _                    => 4
+            };
 
         int dx = RandomBetween(-maxDrift, maxDrift);
         int dy = RandomBetween(-maxDrift, maxDrift);

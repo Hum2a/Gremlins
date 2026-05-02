@@ -9,9 +9,12 @@ public abstract partial class BaseGremlin : ObservableObject, IGremlin
 
     protected readonly ExecutionGate Gate;
 
-    protected BaseGremlin(ExecutionGate gate)
+    protected readonly PreferencesService Prefs;
+
+    protected BaseGremlin(ExecutionGate gate, PreferencesService prefs)
     {
         Gate = gate;
+        Prefs = prefs;
     }
 
     public abstract string Id { get; }

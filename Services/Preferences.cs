@@ -56,4 +56,18 @@ public partial class Preferences : ObservableObject
 
     /// <summary>Default duration for tray “panic” cooldown.</summary>
     [ObservableProperty] private int _panicCooldownMinutes = 30;
+
+    [ObservableProperty] private DrifterGremlinSettings _drifter = new();
+
+    [ObservableProperty] private TypistGremlinSettings _typist = new();
+
+    [ObservableProperty] private AmnesiacGremlinSettings _amnesiac = new();
+
+    [ObservableProperty] private CriticGremlinSettings _critic = new();
+
+    [ObservableProperty] private PhilosopherGremlinSettings _philosopher = new();
+
+    [ObservableProperty] private LagGhostGremlinSettings _lagGhost = new();
+
+    [ObservableProperty] private RearrangerGremlinSettings _rearranger = new();
 }
