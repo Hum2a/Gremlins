@@ -1,0 +1,10 @@
+<Project>
+  <!-- Shared MSBuild defaults for every project in this repository. -->
+  <PropertyGroup>
+    <LangVersion>12.0</LangVersion>
+    <!-- Consistent outputs between machines / CI -->
+    <Deterministic>true</Deterministic>
+    <!-- Embeds git commit into informational version when building from a repo -->
+    <IncludeSourceRevisionInInformationalVersion>true</IncludeSourceRevisionInInformationalVersion>
+  </PropertyGroup>
+</Project>

@@ -4,6 +4,8 @@ A WPF desktop app that subtly gaslights you while you work. Runs silently in the
 
 Nothing is destructive. Everything is plausibly your own fault.
 
+**Docs:** [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) · [License](LICENSE)
+
 ## Download
 
 **[⬇️ Download Gremlins-Setup-1.0.0.exe](https://github.com/yourname/gremlins/releases/latest)** (after you publish a release)
