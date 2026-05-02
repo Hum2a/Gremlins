@@ -16,9 +16,12 @@
 
 .EXAMPLE
   cd packaging
-  .\Build-StoreMsix.ps1 -IdentityName "Contoso.Gremlins" -Publisher 'CN=xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx'
+  .\Build-StoreMsix.ps1 -Version "0.0.1.0"
 
-  Identity / Publisher must match what Partner Center shows under Product identity (reserved app).
+  Identity Name, Publisher (CN=...), and PublisherDisplayName must match Partner Center -> Product identity exactly.
+
+  PublisherDisplayName must match your DEV CENTER publisher display name exactly (Account settings),
+  e.g. -PublisherDisplayName 'Squarebrackets'. Mismatch causes package validation to fail.
 
 .NOTES
   - Store uploads are re-signed by Microsoft; local signing is optional (sideload testing).
@@ -29,18 +32,24 @@
 #>
 [CmdletBinding()]
 param(
+    # Folder that contains Gremlins.csproj (default: parent of this script's directory).
     [Parameter(Mandatory = $false)]
-    [string] $RepoRoot = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path,
+    [string] $RepoRoot = "",
+
+    # Optional override if your .csproj path differs.
+    [Parameter(Mandatory = $false)]
+    [string] $ProjectPath = "",
 
     [Parameter(Mandatory = $false)]
-    [string] $IdentityName = "YourPublisher.Gremlins",
+    [string] $IdentityName = "Squarebrackets.Gremlins",
 
-    # Exact string from Partner Center → Product identity (Publisher), e.g. CN=...
+    # Exact Publisher from Partner Center -> Product identity (reserved); must match uploaded packages.
     [Parameter(Mandatory = $false)]
-    [string] $Publisher = "CN=Development Gremlins",
+    [string] $Publisher = "CN=F23506AB-A0DB-43F1-BF06-938339587D06",
 
+    # EXACT same text as Partner Center publisher display name (Account settings / legal profile).
     [Parameter(Mandatory = $false)]
-    [string] $PublisherDisplayName = "Your Name",
+    [string] $PublisherDisplayName = "Squarebrackets",
 
     [Parameter(Mandatory = $false)]
     [string] $Description = "A desktop app that subtly gaslights you while you work.",
@@ -55,6 +64,35 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = "Stop"
 
+if ([string]::IsNullOrWhiteSpace($RepoRoot)) {
+    $RepoRoot = [System.IO.Path]::GetFullPath((Join-Path $PSScriptRoot ".."))
+}
+else {
+    $RepoRoot = [System.IO.Path]::GetFullPath($RepoRoot)
+}
+
+if ([string]::IsNullOrWhiteSpace($ProjectPath)) {
+    $ProjectPath = Join-Path $RepoRoot "Gremlins.csproj"
+}
+else {
+    $ProjectPath = [System.IO.Path]::GetFullPath($ProjectPath)
+}
+
+if (-not (Test-Path -LiteralPath $ProjectPath)) {
+    Write-Error @"
+Could not find the project file:
+  $ProjectPath
+
+Expected Gremlins.csproj next to the repo root. Fix one of:
+  - Run this script from the repo as: .\packaging\Build-StoreMsix.ps1
+  - Pass -RepoRoot 'C:\path\to\folder\containing\Gremlins.csproj'
+  - Pass -ProjectPath 'C:\full\path\to\Gremlins.csproj'
+
+Resolved RepoRoot: $RepoRoot
+Packaging script folder: $PSScriptRoot
+"@
+}
+
 function Assert-StoreMsixVersion {
     param([string] $Version)
     $parts = $Version -split '\.'
@@ -64,20 +102,22 @@ function Assert-StoreMsixVersion {
     foreach ($p in $parts) {
         if ($p -notmatch '^\d+$') { Write-Error "Version parts must be non-negative integers. Got: $Version" }
         $n = [int]$p
-        if ($n -lt 0 -or $n -gt 65535) { Write-Error "Each version part must be 0–65535 (Store rules). Got: $Version" }
+        if ($n -lt 0 -or $n -gt 65535) { Write-Error "Each version part must be 0-65535 (Store rules). Got: $Version" }
     }
     if ([int]$parts[3] -ne 0) {
-        Write-Error @"
+        $rev = $parts[3]
+        $storeVerErr = @'
 Microsoft Store rejects packages whose manifest revision (4th segment) is not 0.
-You passed: $Version  → revision is $($parts[3]).
+You passed: {0} (revision is {1}).
 
 Examples that are valid:
   1.0.0.0   first submission
-  1.0.1.0   patch bump (move the “1” to Build, keep Revision 0)
+  1.0.1.0   patch bump (move the 1 to Build, keep Revision 0)
   2.0.0.0   major bump
 
 Invalid for Store: 0.0.0.1 (revision must be 0, not 1).
-"@
+'@
+        Write-Error ($storeVerErr -f $Version, $rev)
     }
 }
 
@@ -155,7 +195,8 @@ New-Item -ItemType Directory -Force -Path $layout | Out-Null
 New-Item -ItemType Directory -Force -Path $outDir | Out-Null
 
 $publishDir = Join-Path $layout "_publish"
-dotnet publish (Join-Path $RepoRoot "Gremlins.csproj") `
+Write-Host "Publishing: $ProjectPath"
+dotnet publish $ProjectPath `
     -c Release `
     -r win-x64 `
     --self-contained true `
@@ -196,5 +237,5 @@ if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
 Write-Host ""
 Write-Host "MSIX created: $msixPath"
-Write-Host "Upload this file in Partner Center → Packages."
+Write-Host "Upload this file in Partner Center -> Packages."
 Write-Host "Ensure Identity Name / Publisher match Product identity. Replace placeholder Assets PNGs with final Store art before submission."

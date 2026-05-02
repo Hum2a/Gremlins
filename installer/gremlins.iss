@@ -3,7 +3,7 @@
 
 #define MyAppName "Gremlins"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "Your Name"
+#define MyAppPublisher "Squarebrackets"
 #define MyAppExeName "Gremlins.exe"
 
 [Setup]

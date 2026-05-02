@@ -19,7 +19,7 @@
     <Version>1.0.0</Version>
     <AssemblyVersion>1.0.0.0</AssemblyVersion>
     <FileVersion>1.0.0.0</FileVersion>
-    <Company>Your Name</Company>
+    <Company>Squarebrackets</Company>
     <Product>Gremlins</Product>
     <Description>A desktop app that subtly gaslights you while you work.</Description>
   </PropertyGroup>
