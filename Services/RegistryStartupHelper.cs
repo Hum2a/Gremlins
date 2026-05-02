@@ -14,24 +14,46 @@ public static class RegistryStartupHelper
         return key?.GetValue(AppName) != null;
     }
 
-    public static void SetEnabled(bool enable)
+    /// <summary>
+    /// Registers Gremlins in HKCU Run. Optional <paramref name="delaySeconds"/> waits before launch (boot-friendly).
+    /// </summary>
+    public static void SetEnabled(bool enable, int delaySeconds = 0)
     {
         try
         {
             using var key = Registry.CurrentUser.OpenSubKey(RunKey, true);
-            if (key is null) return;
+            if (key is null)
+                return;
 
-            if (enable)
+            if (!enable)
             {
-                var exePath = Environment.ProcessPath;
-                if (string.IsNullOrEmpty(exePath))
-                    exePath = Path.Combine(AppContext.BaseDirectory, "Gremlins.exe");
-                key.SetValue(AppName, $"\"{exePath}\"");
+                key.DeleteValue(AppName, throwOnMissingValue: false);
+                return;
+            }
+
+            var exePath = Environment.ProcessPath;
+            if (string.IsNullOrEmpty(exePath))
+                exePath = Path.Combine(AppContext.BaseDirectory, "Gremlins.exe");
+
+            delaySeconds = Math.Clamp(delaySeconds, 0, 600);
+
+            string value;
+            if (delaySeconds <= 0)
+            {
+                value = '"' + exePath.Replace("\"", "\\\"") + '"';
             }
             else
             {
-                key.DeleteValue(AppName, throwOnMissingValue: false);
+                var lit = exePath.Replace("'", "''");
+                value =
+                    "powershell.exe -NoProfile -WindowStyle Hidden -Command \"Start-Sleep -Seconds " +
+                    delaySeconds +
+                    "; Start-Process -LiteralPath '" +
+                    lit +
+                    "'\"";
             }
+
+            key.SetValue(AppName, value);
         }
         catch
         {

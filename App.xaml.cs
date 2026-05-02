@@ -10,6 +10,9 @@ namespace Gremlins;
 
 public partial class App : System.Windows.Application
 {
+    /// <summary>DI container after startup (for dialogs that need services).</summary>
+    public static IServiceProvider? Services { get; private set; }
+
     private TaskbarIcon? _trayIcon;
     private ServiceProvider? _services;
 
@@ -27,8 +30,11 @@ public partial class App : System.Windows.Application
         var services = new ServiceCollection();
         ConfigureServices(services);
         _services = services.BuildServiceProvider();
+        Services = _services;
 
+        _services.GetRequiredService<PreferencesService>().Load();
         _services.GetRequiredService<ThemeService>().Initialize();
+        _services.GetRequiredService<ExecutionGate>().StartMonitoring();
 
         // Boot the gremlin engine
         var engine = _services.GetRequiredService<GremlinEngine>();
@@ -70,13 +76,21 @@ public partial class App : System.Windows.Application
         var openItem = new System.Windows.Controls.MenuItem { Header = "👹  Open Gremlins" };
         openItem.Click += (_, _) => ShowDashboard();
 
-        var separator = new System.Windows.Controls.Separator();
+        var panicItem = new System.Windows.Controls.MenuItem { Header = "🔕  Panic (silence tricks)" };
+        panicItem.Click += (_, _) => _services!.GetRequiredService<ExecutionGate>().TriggerPanic();
+
+        var resumeItem = new System.Windows.Controls.MenuItem { Header = "▶  Resume tricks" };
+        resumeItem.Click += (_, _) => _services!.GetRequiredService<ExecutionGate>().ClearPanic();
+
+        var sep1 = new System.Windows.Controls.Separator();
 
         var exitItem = new System.Windows.Controls.MenuItem { Header = "Exorcise all gremlins" };
         exitItem.Click += (_, _) => Shutdown();
 
         menu.Items.Add(openItem);
-        menu.Items.Add(separator);
+        menu.Items.Add(panicItem);
+        menu.Items.Add(resumeItem);
+        menu.Items.Add(sep1);
         menu.Items.Add(exitItem);
 
         return menu;
@@ -97,9 +111,12 @@ public partial class App : System.Windows.Application
     protected override void OnExit(ExitEventArgs e)
     {
         _services?.GetRequiredService<GremlinEngine>().Shutdown();
+        _services?.GetService<ExecutionGate>()?.Dispose();
+        _services?.GetService<PreferencesService>()?.Dispose();
         _services?.GetService<ThemeService>()?.Dispose();
         _trayIcon?.Dispose();
         _services?.Dispose();
+        Services = null;
         base.OnExit(e);
     }
 }

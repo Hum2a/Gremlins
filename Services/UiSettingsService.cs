@@ -7,11 +7,7 @@ namespace Gremlins.Services;
 /// <summary>Persists UI preferences (theme) separate from gremlin engine state.</summary>
 public class UiSettingsService
 {
-    private static readonly string UiPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "Gremlins",
-        "ui.json"
-    );
+    private static string UiPath => Path.Combine(PortablePaths.DataDirectory, "ui.json");
 
     private static readonly JsonSerializerSettings JsonSettings = new()
     {

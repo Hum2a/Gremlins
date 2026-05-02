@@ -1,0 +1,37 @@
+<Window x:Class="Gremlins.UI.OnboardingWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Welcome to Gremlins"
+        Width="440" Height="520"
+        WindowStartupLocation="CenterScreen"
+        ResizeMode="NoResize"
+        Background="{DynamicResource BrushWindowBg}"
+        Foreground="{DynamicResource BrushTextPrimary}">
+    <Border Padding="22" Background="{DynamicResource BrushBgCard}"
+            CornerRadius="10" Margin="12"
+            BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="👹 Gremlins runs locally" FontSize="18" FontWeight="SemiBold"
+                           Foreground="{DynamicResource BrushTitleAccent}" Margin="0,0,0,12"/>
+                <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18"
+                           Foreground="{DynamicResource BrushTextPrimary}">
+                    Hooks watch keyboard/mouse only to power the tricks you enable. Nothing is uploaded or sent off this PC.
+                    Settings live under your user folder (or next to the app if you enable portable mode).
+                </TextBlock>
+                <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18" Margin="0,14,0,0"
+                           Foreground="{DynamicResource BrushTextMuted}">
+                    Close the dashboard window and Gremlins keeps running in the tray.
+                    Use “Exorcise” in the tray menu to quit completely.
+                    Panic silences tricks for a while without changing your toggles.
+                </TextBlock>
+                <CheckBox x:Name="Ack" Content="I understand — surprise me responsibly"
+                          Margin="0,18,0,0" FontSize="12"
+                          Foreground="{DynamicResource BrushTextPrimary}"/>
+                <Button Content="Continue" Margin="0,22,0,0" Padding="14,8" HorizontalAlignment="Right"
+                        Click="Continue_Click"
+                        Style="{StaticResource ActionButtonPrimary}"/>
+            </StackPanel>
+        </ScrollViewer>
+    </Border>
+</Window>

@@ -1,4 +1,5 @@
 using Gremlins.Core;
+using Gremlins.Services;
 
 namespace Gremlins.Tricks;
 
@@ -10,6 +11,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheDrifter : BaseGremlin
 {
+    public TheDrifter(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_drifter";
     public override string Name        => "The Drifter";
     public override string Description => "Nudges your cursor a few pixels when you're not looking. Completely deniable.";
@@ -27,10 +30,15 @@ public class TheDrifter : BaseGremlin
                 _                    => 5 * 60_000
             };
 
+            intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
 
+            if (!Gate.ShouldExecute())
+                continue;
+
             DriftCursor();
+            Gate.LogGremlin(Name, "nudged the cursor");
         }
     }
 

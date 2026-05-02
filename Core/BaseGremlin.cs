@@ -1,10 +1,18 @@
 using CommunityToolkit.Mvvm.ComponentModel;
+using Gremlins.Services;
 
 namespace Gremlins.Core;
 
 public abstract partial class BaseGremlin : ObservableObject, IGremlin
 {
     private CancellationTokenSource? _cts;
+
+    protected readonly ExecutionGate Gate;
+
+    protected BaseGremlin(ExecutionGate gate)
+    {
+        Gate = gate;
+    }
 
     public abstract string Id { get; }
     public abstract string Name { get; }
@@ -73,4 +81,11 @@ public abstract partial class BaseGremlin : ObservableObject, IGremlin
 
     protected static int RandomBetween(int min, int max) =>
         Random.Shared.Next(min, max + 1);
+
+    /// <summary>Shortens waits when idle boost is enabled.</summary>
+    protected int ApplyIdleBoost(int intervalMs)
+    {
+        var div = Gate.IdleIntervalMultiplier();
+        return Math.Max(50, (int)(intervalMs / div));
+    }
 }

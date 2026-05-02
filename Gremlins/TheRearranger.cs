@@ -1,4 +1,5 @@
 using Gremlins.Core;
+using Gremlins.Services;
 
 namespace Gremlins.Tricks;
 
@@ -8,6 +9,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheRearranger : BaseGremlin
 {
+    public TheRearranger(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_rearranger";
     public override string Name        => "The Rearranger";
     public override string Description => "Slowly shifts your active window's position over time. Nothing looks right but you can't explain why.";
@@ -25,10 +28,15 @@ public class TheRearranger : BaseGremlin
                 _                    => 4 * 60 * 60_000
             };
 
+            intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
 
+            if (!Gate.ShouldExecute())
+                continue;
+
             NudgeActiveWindow();
+            Gate.LogGremlin(Name, "nudged active window");
         }
     }
 

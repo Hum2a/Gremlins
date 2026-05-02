@@ -1,4 +1,6 @@
 using Gremlins.Core;
+using Gremlins.Services;
+
 namespace Gremlins.Tricks;
 
 /// <summary>
@@ -7,6 +9,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class ThePhilosopher : BaseGremlin
 {
+    public ThePhilosopher(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_philosopher";
     public override string Name        => "The Philosopher";
     public override string Description => "Silently replaces your clipboard with a quote. You find out when you paste into a Teams message.";
@@ -49,8 +53,12 @@ public class ThePhilosopher : BaseGremlin
                 _                    => 20 * 60_000
             };
 
+            intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
+
+            if (!Gate.ShouldExecute())
+                continue;
 
             var quote = Quotes[Random.Shared.Next(Quotes.Length)];
 
@@ -59,6 +67,7 @@ public class ThePhilosopher : BaseGremlin
                 try { System.Windows.Clipboard.SetText(quote); }
                 catch { }
             });
+            Gate.LogGremlin(Name, "replaced clipboard with philosophy");
         }
     }
 }

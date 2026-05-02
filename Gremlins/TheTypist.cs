@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using System.Text;
 using Gremlins.Core;
+using Gremlins.Services;
 
 namespace Gremlins.Tricks;
 
@@ -11,6 +12,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheTypist : BaseGremlin
 {
+    public TheTypist(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_typist";
     public override string Name        => "The Typist";
     public override string Description => "Occasionally swaps a character you typed for a lookalike. l→I, o→0, etc.";
@@ -102,6 +105,9 @@ public class TheTypist : BaseGremlin
 
     private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
+        if (!Gate.ShouldExecute())
+            return Win32.CallNextHookEx(_hookId, nCode, wParam, lParam);
+
         if (nCode >= 0 && (wParam == (IntPtr)Win32.WM_KEYDOWN || wParam == (IntPtr)Win32.WM_SYSKEYDOWN))
         {
             var kb = Marshal.PtrToStructure<Win32.KBDLLHOOKSTRUCT>(lParam);
@@ -117,6 +123,7 @@ public class TheTypist : BaseGremlin
                     && Random.Shared.NextDouble() < SubstitutionChance)
                 {
                     SendCharacter(replacement);
+                    Gate.LogGremlin(Name, $"swapped “{c}” → lookalike");
                     return (IntPtr)1;
                 }
             }

@@ -1,6 +1,8 @@
 using System.Windows;
 using System.Windows.Input;
 using Gremlins;
+using Gremlins.Services;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Gremlins.UI;
 
@@ -15,6 +17,18 @@ public partial class MainWindow : Window
         _vm = vm;
         DataContext = vm;
         vm.Initialise();
+    }
+
+    private void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        if (_vm.Behavior.OnboardingComplete)
+            return;
+        var w = new OnboardingWindow { Owner = this };
+        if (w.ShowDialog() != true)
+            return;
+        _vm.Behavior.OnboardingComplete = true;
+        if (App.Services is not null)
+            App.Services.GetRequiredService<PreferencesService>().SaveImmediate();
     }
 
     private void TitleBar_MouseDown(object sender, MouseButtonEventArgs e)

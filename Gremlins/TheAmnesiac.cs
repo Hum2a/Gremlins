@@ -1,4 +1,6 @@
 using Gremlins.Core;
+using Gremlins.Services;
+
 namespace Gremlins.Tricks;
 
 /// <summary>
@@ -7,6 +9,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheAmnesiac : BaseGremlin
 {
+    public TheAmnesiac(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_amnesiac";
     public override string Name        => "The Amnesiac";
     public override string Description => "Randomly clears your clipboard. You copied that, right? Are you sure?";
@@ -24,8 +28,12 @@ public class TheAmnesiac : BaseGremlin
                 _                    => 10 * 60_000
             };
 
+            intervalMs = ApplyIdleBoost(intervalMs);
             await Task.Delay(intervalMs, ct);
             if (ct.IsCancellationRequested) break;
+
+            if (!Gate.ShouldExecute())
+                continue;
 
             // Clipboard must be accessed on STA thread
             System.Windows.Application.Current.Dispatcher.Invoke(() =>
@@ -33,6 +41,7 @@ public class TheAmnesiac : BaseGremlin
                 try { System.Windows.Clipboard.Clear(); }
                 catch { /* clipboard might be locked by another app */ }
             });
+            Gate.LogGremlin(Name, "cleared clipboard");
         }
     }
 }

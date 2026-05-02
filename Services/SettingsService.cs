@@ -12,11 +12,7 @@ public class GremlinState
 
 public class SettingsService
 {
-    private static readonly string SettingsPath = Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-        "Gremlins",
-        "settings.json"
-    );
+    private static string SettingsPath => Path.Combine(PortablePaths.DataDirectory, "settings.json");
 
     public Dictionary<string, GremlinState> Load()
     {

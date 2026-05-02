@@ -1,4 +1,5 @@
 using Gremlins.Core;
+using Gremlins.Services;
 
 namespace Gremlins.Tricks;
 
@@ -7,6 +8,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheLagGhost : BaseGremlin
 {
+    public TheLagGhost(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_lag_ghost";
     public override string Name        => "The Lag Ghost";
     public override string Description => "Introduces fake input delay in bursts. Feels like your PC is crying.";
@@ -76,7 +79,11 @@ public class TheLagGhost : BaseGremlin
                     _                    => 30 * 60_000
                 };
 
+                intervalMs = ApplyIdleBoost(intervalMs);
                 await Task.Delay(intervalMs, ct).ConfigureAwait(false);
+
+                if (!Gate.ShouldExecute())
+                    continue;
 
                 int lagDurationMs = Severity switch
                 {
@@ -87,6 +94,7 @@ public class TheLagGhost : BaseGremlin
                 };
 
                 _lagging = true;
+                Gate.LogGremlin(Name, "lag burst started");
                 try
                 {
                     await Task.Delay(lagDurationMs, ct).ConfigureAwait(false);
@@ -115,6 +123,9 @@ public class TheLagGhost : BaseGremlin
 
     private IntPtr HookCallback(int nCode, IntPtr wParam, IntPtr lParam)
     {
+        if (!Gate.ShouldExecute())
+            return Win32.CallNextHookEx(_hookId, nCode, wParam, lParam);
+
         if (nCode >= 0 && _lagging)
         {
             int delayMs = Severity switch

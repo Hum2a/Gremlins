@@ -3,20 +3,24 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:local="clr-namespace:Gremlins.UI"
         Title="Gremlins"
-        Width="480" Height="680"
-        MinWidth="420" MinHeight="520"
+        Width="560" Height="760"
+        MinWidth="440" MinHeight="580"
         WindowStartupLocation="CenterScreen"
         Background="{DynamicResource BrushWindowBg}"
         Foreground="{DynamicResource BrushTextPrimary}"
         FontFamily="Segoe UI"
         ResizeMode="CanResizeWithGrip"
         WindowStyle="None"
-        AllowsTransparency="True">
+        AllowsTransparency="True"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True"
+        Loaded="Window_Loaded">
 
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <local:SeverityLabelConverter x:Key="SeverityLabelConverter"/>
         <local:ThemePreferenceLabelConverter x:Key="ThemePreferenceLabelConverter"/>
+        <local:MinutesClockConverter x:Key="MinutesClock"/>
     </Window.Resources>
 
     <Border CornerRadius="12" Background="{DynamicResource BrushWindowBg}"
@@ -24,12 +28,10 @@
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
                 <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
 
-            <!-- Title bar -->
             <Border Grid.Row="0" CornerRadius="12,12,0,0"
                     Background="{DynamicResource BrushTitleBar}" Padding="20,14"
                     MouseLeftButtonDown="TitleBar_MouseDown">
@@ -80,117 +82,340 @@
                 </Grid>
             </Border>
 
-            <Border Grid.Row="1" Padding="16,10" Background="{DynamicResource BrushWindowBg}">
-                <StackPanel Orientation="Horizontal">
-                    <Button Content="Enable All"  Style="{StaticResource ActionButtonPrimary}"
-                            Command="{Binding EnableAllCommand}" Margin="0,0,10,0"/>
-                    <Button Content="Disable All" Style="{StaticResource ActionButtonSecondary}"
-                            Command="{Binding DisableAllCommand}"/>
-                </StackPanel>
-            </Border>
+            <TabControl Grid.Row="1" Margin="8,4,8,4"
+                        Background="Transparent"
+                        BorderThickness="0">
+                <TabItem Header="Gremlins">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="8">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                <Button Content="Enable all" Style="{StaticResource ActionButtonPrimary}"
+                                        Command="{Binding EnableAllCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Disable all" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding DisableAllCommand}"/>
+                            </StackPanel>
+                            <ItemsControl ItemsSource="{Binding GremlinCards}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate DataType="{x:Type local:GremlinCardViewModel}">
+                                        <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
 
-            <ScrollViewer Grid.Row="2" Padding="16,4,16,8"
-                          VerticalScrollBarVisibility="Auto"
-                          Background="Transparent">
-                <ItemsControl ItemsSource="{Binding GremlinCards}">
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate DataType="{x:Type local:GremlinCardViewModel}">
-                            <Border Style="{StaticResource CardStyle}">
+                                                <TextBlock Grid.Column="0" Text="{Binding Emoji}"
+                                                           FontSize="28" VerticalAlignment="Center"
+                                                           Margin="0,0,14,0"/>
+
+                                                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="14" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource BrushTextPrimary}"/>
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
+                                                               TextWrapping="Wrap" Margin="0,3,0,8"/>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="Severity:" FontSize="11"
+                                                                   Foreground="{DynamicResource BrushTextMuted}" VerticalAlignment="Center"
+                                                                   Margin="0,0,8,0"/>
+                                                        <ComboBox ItemsSource="{Binding Severities}"
+                                                                  SelectedItem="{Binding Severity}"
+                                                                  IsEnabled="{Binding IsEnabled}">
+                                                            <ComboBox.ItemTemplate>
+                                                                <DataTemplate>
+                                                                    <TextBlock Foreground="{DynamicResource BrushTextPrimary}"
+                                                                               Text="{Binding Converter={StaticResource SeverityLabelConverter}}"/>
+                                                                </DataTemplate>
+                                                            </ComboBox.ItemTemplate>
+                                                        </ComboBox>
+                                                    </StackPanel>
+                                                </StackPanel>
+
+                                                <ToggleButton Grid.Column="2"
+                                                                Style="{StaticResource ToggleStyle}"
+                                                                IsChecked="{Binding IsEnabled}"
+                                                                VerticalAlignment="Center"
+                                                                Margin="12,0,0,0"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="Rules &amp; timing">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="Quiet hours" FontWeight="SemiBold" Margin="0,0,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Block tricks during quiet hours"
+                                      IsChecked="{Binding Behavior.QuietHoursEnabled}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <Grid Margin="0,8,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0" Margin="0,0,8,0">
+                                    <TextBlock Text="Start" FontSize="10" Foreground="{DynamicResource BrushTextMuted}"/>
+                                    <Slider Minimum="0" Maximum="1439" Value="{Binding Behavior.QuietStartMinutes}"/>
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
+                                               Text="{Binding Behavior.QuietStartMinutes, Converter={StaticResource MinutesClock}}"/>
+                                </StackPanel>
+                                <StackPanel Grid.Column="1">
+                                    <TextBlock Text="End" FontSize="10" Foreground="{DynamicResource BrushTextMuted}"/>
+                                    <Slider Minimum="0" Maximum="1439" Value="{Binding Behavior.QuietEndMinutes}"/>
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
+                                               Text="{Binding Behavior.QuietEndMinutes, Converter={StaticResource MinutesClock}}"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <TextBlock Text="Schedule (optional)" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Only allow tricks during this daily window (local time)"
+                                      IsChecked="{Binding Behavior.ScheduleEnabled}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="From hour" VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
+                                <Slider Width="160" Minimum="0" Maximum="23"
+                                        Value="{Binding Behavior.ScheduleFromHour}"/>
+                                <TextBlock Text="{Binding Behavior.ScheduleFromHour}" Margin="8,0,16,0"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="To hour (exclusive)" VerticalAlignment="Center" Margin="0,0,8,0"
+                                           Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
+                                <Slider Width="160" Minimum="0" Maximum="23"
+                                        Value="{Binding Behavior.ScheduleToHour}"/>
+                                <TextBlock Text="{Binding Behavior.ScheduleToHour}" Margin="8,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <CheckBox Margin="0,10,0,0" Content="Weekdays only (Mon–Fri)"
+                                      IsChecked="{Binding Behavior.ScheduleWeekdaysOnly}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Weekends only"
+                                      IsChecked="{Binding Behavior.ScheduleWeekendsOnly}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+
+                            <TextBlock Text="Foreground apps" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Pause tricks when these processes are in the foreground"
+                                      IsChecked="{Binding Behavior.FocusRulesEnabled}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <TextBox Margin="0,6,0,0" Text="{Binding Behavior.FocusDenyExeList, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="Comma-separated: notepad.exe, devenv.exe"
+                                     Background="{DynamicResource BrushComboChromeBg}"
+                                     Foreground="{DynamicResource BrushTextPrimary}"
+                                     BorderBrush="{DynamicResource BrushBorder}"/>
+
+                            <TextBlock Text="Idle intensity" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Ramp chaos after you've been idle (shorter waits)"
+                                      IsChecked="{Binding Behavior.IdleIntensityEnabled}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Idle boost after (seconds)" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource BrushTextMuted}" FontSize="11" Margin="0,0,10,0"/>
+                                <Slider Width="220" Minimum="60" Maximum="3600"
+                                        Value="{Binding Behavior.IdleBoostAfterSeconds}"/>
+                                <TextBlock Text="{Binding Behavior.IdleBoostAfterSeconds}" Margin="10,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Soft start" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
+                                       Text="After Gremlins launches, wait before any trick fires (does not delay Windows startup by itself)."/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Minutes" VerticalAlignment="Center" Margin="0,0,10,0"
+                                           Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
+                                <Slider Width="240" Minimum="0" Maximum="120"
+                                        Value="{Binding Behavior.SoftStartMinutes}"/>
+                                <TextBlock Text="{Binding Behavior.SoftStartMinutes}" Margin="10,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Windows modes" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Pause during presentation mode"
+                                      IsChecked="{Binding Behavior.RespectPresentationMode}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Pause during full-screen / busy states (games, etc.)"
+                                      IsChecked="{Binding Behavior.RespectFullScreenApps}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="Safety &amp; profiles">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="Panic" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="11" Margin="0,4,0,8"
+                                       Foreground="{DynamicResource BrushTextMuted}">
+                                Silences tricks for a while. Your toggles stay as they are — tricks resume automatically when the cooldown ends.
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Panic now" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding PanicCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Resume tricks" Style="{StaticResource ActionButtonPrimary}"
+                                        Command="{Binding ResumeTricksCommand}"/>
+                            </StackPanel>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <TextBlock Text="Cooldown (minutes)" VerticalAlignment="Center" Margin="0,0,10,0"
+                                           Foreground="{DynamicResource BrushTextMuted}" FontSize="11"/>
+                                <Slider Width="200" Minimum="5" Maximum="180"
+                                        Value="{Binding Behavior.PanicCooldownMinutes}"/>
+                                <TextBlock Text="{Binding Behavior.PanicCooldownMinutes}" Margin="10,0,0,0"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Profiles" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Quiet workplace" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding ProfileQuietCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Mild chaos" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding ProfileMildCommand}" Margin="0,0,8,0"/>
+                                <Button Content="Maximum chaos" Style="{StaticResource ActionButtonPrimary}"
+                                        Command="{Binding ProfileChaosCommand}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Activity log (local only)" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Record gremlin actions"
+                                      IsChecked="{Binding Behavior.ActivityLogEnabled}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <Border Margin="0,8,0,0" Padding="8" CornerRadius="6"
+                                    Background="{DynamicResource BrushBgCard}"
+                                    BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
+                                <ListBox ItemsSource="{Binding ActivityLog.Entries}"
+                                         MaxHeight="200"
+                                         Background="Transparent"
+                                         BorderThickness="0"
+                                         Foreground="{DynamicResource BrushTextMuted}"
+                                         FontFamily="Consolas" FontSize="10"/>
+                            </Border>
+                            <Button Content="Clear log" HorizontalAlignment="Left" Margin="0,8,0,0"
+                                    Style="{StaticResource ActionButtonSecondary}"
+                                    Command="{Binding ClearActivityLogCommand}"/>
+
+                            <TextBlock Text="Sounds" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <CheckBox Content="Tiny UI sound when toggling a gremlin"
+                                      IsChecked="{Binding Behavior.UiSoundsEnabled}"
+                                      Foreground="{DynamicResource BrushTextPrimary}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+
+                <TabItem Header="App &amp; data">
+                    <ScrollViewer VerticalScrollBarVisibility="Auto" Padding="12">
+                        <StackPanel>
+                            <TextBlock Text="Appearance" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <ComboBox Margin="0,8,0,0" Width="280" HorizontalAlignment="Left"
+                                      ItemsSource="{Binding ThemeOptions}"
+                                      SelectedItem="{Binding ThemePreference}">
+                                <ComboBox.ItemTemplate>
+                                    <DataTemplate>
+                                        <TextBlock Foreground="{DynamicResource BrushTextPrimary}"
+                                                   Text="{Binding Converter={StaticResource ThemePreferenceLabelConverter}}"/>
+                                    </DataTemplate>
+                                </ComboBox.ItemTemplate>
+                            </ComboBox>
+
+                            <TextBlock Text="Startup" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <Border Padding="12,10" CornerRadius="8"
+                                    Background="{DynamicResource BrushBgCard}"
+                                    BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-
-                                    <TextBlock Grid.Column="0" Text="{Binding Emoji}"
-                                               FontSize="28" VerticalAlignment="Center"
-                                               Margin="0,0,14,0"/>
-
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Name}"
-                                                   FontSize="14" FontWeight="SemiBold"
+                                    <StackPanel Grid.Column="0">
+                                        <TextBlock Text="Start with Windows" FontWeight="SemiBold"
                                                    Foreground="{DynamicResource BrushTextPrimary}"/>
-                                        <TextBlock Text="{Binding Description}"
-                                                   FontSize="11" Foreground="{DynamicResource BrushTextMuted}"
-                                                   TextWrapping="Wrap" Margin="0,3,0,8"/>
+                                        <TextBlock Text="Delay launch after sign-in (helps slower PCs)"
+                                                   FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,4,0,8"/>
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Severity:" FontSize="11"
-                                                       Foreground="{DynamicResource BrushTextMuted}" VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"/>
-                                            <ComboBox ItemsSource="{Binding Severities}"
-                                                      SelectedItem="{Binding Severity}"
-                                                      IsEnabled="{Binding IsEnabled}">
-                                                <ComboBox.ItemTemplate>
-                                                    <DataTemplate>
-                                                        <TextBlock Foreground="{DynamicResource BrushTextPrimary}"
-                                                                   Text="{Binding Converter={StaticResource SeverityLabelConverter}}"/>
-                                                    </DataTemplate>
-                                                </ComboBox.ItemTemplate>
-                                            </ComboBox>
+                                            <TextBlock Text="Delay (seconds)" VerticalAlignment="Center"
+                                                       FontSize="11" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,10,0"/>
+                                            <Slider Width="200" Minimum="0" Maximum="600"
+                                                    Value="{Binding Behavior.StartupDelaySeconds}"/>
+                                            <TextBlock Text="{Binding Behavior.StartupDelaySeconds}" Margin="10,0,0,0"
+                                                       VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </StackPanel>
-
-                                    <ToggleButton Grid.Column="2"
+                                    <ToggleButton Grid.Column="1" VerticalAlignment="Center"
                                                   Style="{StaticResource ToggleStyle}"
-                                                  IsChecked="{Binding IsEnabled}"
-                                                  VerticalAlignment="Center"
-                                                  Margin="12,0,0,0"/>
+                                                  IsChecked="{Binding StartWithWindows}"/>
                                 </Grid>
                             </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
 
-            <Border Grid.Row="3" Padding="20,12" Background="{DynamicResource BrushFooterBg}"
-                    CornerRadius="0,0,12,12">
-                <StackPanel>
-                    <TextBlock Text="Runs silently in system tray. Close this window to keep gremlins active."
-                               FontSize="10" Foreground="{DynamicResource BrushTextMuted}" TextAlignment="Center"
-                               TextWrapping="Wrap"/>
-
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,12,0,0">
-                        <TextBlock Text="Appearance:" FontSize="11"
-                                   Foreground="{DynamicResource BrushTextMuted}"
-                                   VerticalAlignment="Center" Margin="0,0,10,0"/>
-                        <ComboBox Width="220"
-                                  MaxDropDownHeight="320"
-                                  ItemsSource="{Binding ThemeOptions}"
-                                  SelectedItem="{Binding ThemePreference}">
-                            <ComboBox.ItemTemplate>
-                                <DataTemplate>
-                                    <TextBlock Foreground="{DynamicResource BrushTextPrimary}"
-                                               Text="{Binding Converter={StaticResource ThemePreferenceLabelConverter}}"/>
-                                </DataTemplate>
-                            </ComboBox.ItemTemplate>
-                        </ComboBox>
-                    </StackPanel>
-
-                    <Border Margin="0,14,0,0" Padding="14,12" CornerRadius="8"
-                            HorizontalAlignment="Center" MinWidth="300" MaxWidth="400"
-                            Background="{DynamicResource BrushBgCard}"
-                            BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="Auto"/>
-                            </Grid.ColumnDefinitions>
-                            <StackPanel Grid.Column="0" VerticalAlignment="Center" Margin="0,0,16,0">
-                                <TextBlock Text="Start with Windows" FontSize="12" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource BrushTextPrimary}"/>
-                                <TextBlock Text="Run when you sign in to this PC" FontSize="10" Margin="0,3,0,0"
-                                           Foreground="{DynamicResource BrushTextMuted}" TextWrapping="Wrap"/>
+                            <TextBlock Text="Portable mode" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <TextBlock TextWrapping="Wrap" FontSize="11" Foreground="{DynamicResource BrushTextMuted}">
+                                Store GremlinsData next to the executable (USB-friendly). Restart after changing.
+                            </TextBlock>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <Button Content="Enable portable data folder" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding EnablePortableModeCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Use AppData again" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding DisablePortableModeCommand}"/>
                             </StackPanel>
-                            <ToggleButton Grid.Column="1"
-                                          Style="{StaticResource ToggleStyle}"
-                                          VerticalAlignment="Center"
-                                          IsChecked="{Binding StartWithWindows, Mode=TwoWay}"/>
-                        </Grid>
-                    </Border>
-                </StackPanel>
-            </Border>
+                            <TextBlock Margin="0,6,0,0" FontSize="11" TextWrapping="Wrap"
+                                       Foreground="{DynamicResource BrushTextMuted}"
+                                       Text="{Binding PortableMarkerSummary}"/>
 
+                            <TextBlock Text="Recipes" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <Button Content="Export recipe…" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding ExportRecipeCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Import recipe…" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding ImportRecipeCommand}"/>
+                            </StackPanel>
+
+                            <TextBlock Text="Updates" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <TextBox Width="320" HorizontalAlignment="Left" Margin="0,4,0,0"
+                                     Text="{Binding Behavior.GitHubUpdateRepo, UpdateSourceTrigger=PropertyChanged}"
+                                     ToolTip="owner/repo on GitHub"
+                                     Background="{DynamicResource BrushComboChromeBg}"
+                                     Foreground="{DynamicResource BrushTextPrimary}"
+                                     BorderBrush="{DynamicResource BrushBorder}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                                <Button Content="Check GitHub" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding CheckUpdatesCommand}" Margin="0,0,10,0"/>
+                                <Button Content="Open releases page" Style="{StaticResource ActionButtonSecondary}"
+                                        Command="{Binding OpenGithubReleasesCommand}"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding UpdateCheckMessage}" TextWrapping="Wrap" Margin="0,8,0,0"
+                                       FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
+
+                            <TextBlock Text="Welcome" FontWeight="SemiBold" Margin="0,18,0,6"
+                                       Foreground="{DynamicResource BrushTextPrimary}"/>
+                            <Button Content="Show welcome summary again" HorizontalAlignment="Left"
+                                    Style="{StaticResource ActionButtonSecondary}"
+                                    Command="{Binding ResetOnboardingCommand}"/>
+                        </StackPanel>
+                    </ScrollViewer>
+                </TabItem>
+            </TabControl>
+
+            <Border Grid.Row="2" Padding="16,10" Background="{DynamicResource BrushFooterBg}"
+                    CornerRadius="0,0,12,12">
+                <TextBlock Text="Runs in the system tray. Close hides this window — Gremlins keeps running. Tray ▸ Exorcise quits completely."
+                           FontSize="10" Foreground="{DynamicResource BrushTextMuted}" TextAlignment="Center"
+                           TextWrapping="Wrap"/>
+            </Border>
         </Grid>
     </Border>
 </Window>

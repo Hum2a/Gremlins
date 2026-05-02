@@ -1,6 +1,7 @@
 using System.IO;
 using System.Text;
 using Gremlins.Core;
+using Gremlins.Services;
 using NAudio.Wave;
 
 namespace Gremlins.Tricks;
@@ -11,6 +12,8 @@ namespace Gremlins.Tricks;
 /// </summary>
 public class TheCritic : BaseGremlin
 {
+    public TheCritic(ExecutionGate gate) : base(gate) { }
+
     public override string Id          => "the_critic";
     public override string Name        => "The Critic";
     public override string Description => "Lets out a tiny sigh when you open social media or YouTube. It knows.";
@@ -29,7 +32,7 @@ public class TheCritic : BaseGremlin
     {
         while (!ct.IsCancellationRequested)
         {
-            await Task.Delay(2000, ct).ConfigureAwait(false);
+            await Task.Delay(ApplyIdleBoost(2000), ct).ConfigureAwait(false);
 
             var hwnd = Win32.GetForegroundWindow();
             var sb = new StringBuilder(512);
@@ -40,7 +43,12 @@ public class TheCritic : BaseGremlin
             _lastWindowTitle = title;
 
             if (ShamefulKeywords.Any(k => title.Contains(k)))
+            {
+                if (!Gate.ShouldExecute())
+                    continue;
                 PlaySigh();
+                Gate.LogGremlin(Name, "sighed at window title");
+            }
         }
     }
 

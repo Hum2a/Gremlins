@@ -16,6 +16,20 @@ public class GremlinEngine
         _settings = settings;
     }
 
+    /// <summary>Apply imported gremlin states (from a recipe file).</summary>
+    public void ApplyGremlinStates(IReadOnlyDictionary<string, GremlinState> states)
+    {
+        foreach (var g in AllGremlins)
+        {
+            if (!states.TryGetValue(g.Id, out var s))
+                continue;
+            g.Severity = s.Severity;
+            g.IsEnabled = s.IsEnabled;
+        }
+
+        SaveState();
+    }
+
     public void Initialise()
     {
         AllGremlins =
