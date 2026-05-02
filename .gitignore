@@ -1,0 +1,135 @@
+# Build results
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]uild/
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+publish/
+[Dd]ist/
+/out/
+
+# MSTest / testing
+[Tt]est[Rr]esult*/
+[Bb]uild[Ll]og.*
+*.trx
+*.coverage
+*.coveragexml
+coverage*.json
+coverage*.xml
+
+# .NET Core / NuGet
+project.lock.json
+project.fragment.lock.json
+artifacts/
+**/packages/*
+!**/packages/build/
+*.nupkg
+*.snupkg
+*.nuget.props
+*.nuget.targets
+
+# Visual Studio
+.vs/
+*.rsuser
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+*.VC.db-shm
+*.VC.db-wal
+*.opensdf
+*.sdf
+*.cachefile
+*.VC.opendb
+*.pidb
+*.svclog
+*.vsp
+*.vspx
+*.sap
+*.psess
+*.vsp
+*.vssscc
+*.vbssscc
+*.scc
+*.vsp
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+_TeamCity*
+*.dotCover
+*.axoCover
+*.VisualState.xml
+__pycache__/
+FodyWeavers.xsd
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+*.cab
+*.msi
+*.msix
+*.msm
+*.msp
+*.lnk
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+.Spotlight-V100
+.Trashes
+
+# JetBrains Rider / IDEA
+.idea/
+*.sln.iml
+*.iml
+
+# CodeRush
+.cr/
+
+# Python (if any tooling)
+.venv/
+venv/
+env/
+__pycache__/
+
+# Node (if any tooling)
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+# Local / secrets (never commit)
+*.pfx
+*.p12
+*.key
+.env
+.env.*
+!.env.example
+secrets.json
+appsettings.Development.local.json
+appsettings.*.local.json
+
+# Installer output
+installer/output/
+
+# Backup / temp
+*.tmp
+*.temp
+*~
+*.swp
+*.bak
+*.orig
