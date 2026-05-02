@@ -1,0 +1,49 @@
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-deep: #0a0c10;
+  --bg-card: rgba(18, 22, 32, 0.72);
+  --border: rgba(255, 255, 255, 0.08);
+  --text: rgba(245, 247, 255, 0.94);
+  --text-muted: rgba(200, 210, 230, 0.72);
+  --accent: #7c9cff;
+  --accent-bright: #a8bcff;
+  --accent-warm: #ff6b5c;
+  --mono: "Consolas", "Cascadia Mono", "Segoe UI Mono", ui-monospace, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family:
+    "Segoe UI Variable",
+    "Segoe UI",
+    system-ui,
+    sans-serif;
+  background: var(--bg-deep);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+a {
+  color: var(--accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--accent-bright);
+}
