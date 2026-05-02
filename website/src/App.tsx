@@ -1,4 +1,5 @@
 import "./App.css";
+import { gremlinMarkUrl } from "./branding.ts";
 import { GremlinDemo } from "./GremlinDemo.tsx";
 
 const supportEmail =
@@ -17,7 +18,7 @@ export default function App() {
           <a className="brand" href="#top" aria-label="Gremlins home">
             <img
               className="brand-mark"
-              src="/gremlin-icon.svg"
+              src={gremlinMarkUrl}
               alt=""
               width={36}
               height={36}
@@ -38,7 +39,7 @@ export default function App() {
         <section className="hero">
           <img
             className="hero-logo"
-            src="/gremlin-icon.svg"
+            src={gremlinMarkUrl}
             alt=""
             width={112}
             height={112}

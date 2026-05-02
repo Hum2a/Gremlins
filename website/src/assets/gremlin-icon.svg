@@ -56,9 +56,9 @@
   <circle cx="17.45" cy="12.65" r="1.55" fill="#080808" fill-opacity="0.98"/>
   <ellipse cx="17.9" cy="12.2" rx="0.85" ry="0.85" fill="#FFFFFF" fill-opacity="0.94"/>
 
-  <!-- Grin: neon arc (bounding 9.5,15  13×12 ’ center 16,21, rx 6.5, ry 6, 15° sweep 150°) -->
+  <!-- Grin: neon arc -->
   <path d="M 22.278 22.553 A 6.5 6 0 0 1 9.722 22.553" fill="none" stroke="#39FF28" stroke-opacity="0.98" stroke-width="1.35" stroke-linecap="round"/>
 
-  <!-- Subtle darker smile line (10,15.5  12×11 ’ rx 6, ry 5.5, 20° sweep 140°) -->
+  <!-- Inner smile line -->
   <path d="M 21.638 22.881 A 6 5.5 0 0 1 10.362 22.881" fill="none" stroke="#000000" stroke-opacity="0.353" stroke-width="0.495" stroke-linecap="round"/>
 </svg>
