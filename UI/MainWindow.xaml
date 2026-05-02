@@ -78,9 +78,9 @@
 
             <Border Grid.Row="1" Padding="16,10" Background="#0D0D0F">
                 <StackPanel Orientation="Horizontal">
-                    <Button Content="Enable All"  Style="{StaticResource ActionButton}"
-                            Command="{Binding EnableAllCommand}" Margin="0,0,8,0"/>
-                    <Button Content="Disable All" Style="{StaticResource ActionButton}"
+                    <Button Content="Enable All"  Style="{StaticResource ActionButtonPrimary}"
+                            Command="{Binding EnableAllCommand}" Margin="0,0,10,0"/>
+                    <Button Content="Disable All" Style="{StaticResource ActionButtonSecondary}"
                             Command="{Binding DisableAllCommand}"/>
                 </StackPanel>
             </Border>
@@ -118,7 +118,8 @@
                                                       IsEnabled="{Binding IsEnabled}">
                                                 <ComboBox.ItemTemplate>
                                                     <DataTemplate>
-                                                        <TextBlock Text="{Binding Converter={StaticResource SeverityLabelConverter}}"/>
+                                                        <TextBlock Foreground="#E8E8E8"
+                                                                   Text="{Binding Converter={StaticResource SeverityLabelConverter}}"/>
                                                     </DataTemplate>
                                                 </ComboBox.ItemTemplate>
                                             </ComboBox>
