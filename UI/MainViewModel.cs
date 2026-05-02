@@ -1,3 +1,4 @@
+using System;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using Gremlins.Core;
@@ -9,8 +10,12 @@ namespace Gremlins.UI;
 public partial class MainViewModel : ObservableObject
 {
     private readonly GremlinEngine _engine;
+    private readonly ThemeService _themeService;
 
     public ObservableCollection<GremlinCardViewModel> GremlinCards { get; } = [];
+
+    public IReadOnlyList<AppThemePreference> ThemeOptions { get; } =
+        Enum.GetValues<AppThemePreference>().ToArray();
 
     [ObservableProperty]
     private int _activeCount;
@@ -21,14 +26,19 @@ public partial class MainViewModel : ObservableObject
     [ObservableProperty]
     private bool _startWithWindows;
 
-    public MainViewModel(GremlinEngine engine)
+    [ObservableProperty]
+    private AppThemePreference _themePreference = AppThemePreference.System;
+
+    public MainViewModel(GremlinEngine engine, ThemeService themeService)
     {
         _engine = engine;
+        _themeService = themeService;
     }
 
     public void Initialise()
     {
         StartWithWindows = RegistryStartupHelper.IsEnabled();
+        ThemePreference = _themeService.Preference;
 
         foreach (var g in _engine.AllGremlins)
             GremlinCards.Add(new GremlinCardViewModel(g, this, _engine));
@@ -38,6 +48,9 @@ public partial class MainViewModel : ObservableObject
 
     partial void OnStartWithWindowsChanged(bool value) =>
         RegistryStartupHelper.SetEnabled(value);
+
+    partial void OnThemePreferenceChanged(AppThemePreference value) =>
+        _themeService.SetPreference(value);
 
     public void RefreshStatus()
     {

@@ -20,6 +20,8 @@ public partial class App : System.Windows.Application
         ConfigureServices(services);
         _services = services.BuildServiceProvider();
 
+        _services.GetRequiredService<ThemeService>().Initialize();
+
         // Boot the gremlin engine
         var engine = _services.GetRequiredService<GremlinEngine>();
         engine.Initialise();
@@ -39,6 +41,8 @@ public partial class App : System.Windows.Application
     private static void ConfigureServices(ServiceCollection services)
     {
         services.AddSingleton<SettingsService>();
+        services.AddSingleton<UiSettingsService>();
+        services.AddSingleton<ThemeService>();
         services.AddSingleton<GremlinEngine>();
         services.AddSingleton<MainViewModel>();
 
@@ -85,6 +89,7 @@ public partial class App : System.Windows.Application
     protected override void OnExit(ExitEventArgs e)
     {
         _services?.GetRequiredService<GremlinEngine>().Shutdown();
+        _services?.GetService<ThemeService>()?.Dispose();
         _trayIcon?.Dispose();
         _services?.Dispose();
         base.OnExit(e);

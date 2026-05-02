@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using Gremlins.Core;
+using Gremlins.Services;
 
 namespace Gremlins.UI;
 
@@ -17,6 +18,25 @@ public class SeverityLabelConverter : IValueConverter
             Severity.Unhinged    => "🤯 Unhinged",
             _                    => s.ToString(),
         };
+    }
+
+    public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>
+        throw new NotSupportedException();
+}
+
+public class ThemePreferenceLabelConverter : IValueConverter
+{
+    public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+    {
+        return value is AppThemePreference p
+            ? p switch
+            {
+                AppThemePreference.Dark   => "Dark",
+                AppThemePreference.Light  => "Light",
+                AppThemePreference.System => "Follow system",
+                _                         => p.ToString(),
+            }
+            : string.Empty;
     }
 
     public object ConvertBack(object? value, Type targetType, object? parameter, CultureInfo culture) =>

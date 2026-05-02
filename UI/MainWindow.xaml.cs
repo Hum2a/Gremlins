@@ -1,5 +1,6 @@
 using System.Windows;
 using System.Windows.Input;
+using Gremlins;
 
 namespace Gremlins.UI;
 
@@ -10,6 +11,7 @@ public partial class MainWindow : Window
     public MainWindow(MainViewModel vm)
     {
         InitializeComponent();
+        Icon = IconGenerator.CreateWindowIconSource();
         _vm = vm;
         DataContext = vm;
         vm.Initialise();

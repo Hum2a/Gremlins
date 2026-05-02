@@ -1,0 +1,41 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <!-- Light theme: cool grey surfaces, deep green accent for contrast -->
+    <SolidColorBrush x:Key="BrushBgDeep" Color="#EEEEF2"/>
+    <SolidColorBrush x:Key="BrushBgCard" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BrushCardHover" Color="#E6E8EF"/>
+    <SolidColorBrush x:Key="BrushAccentGreen" Color="#0A7A1A"/>
+    <SolidColorBrush x:Key="BrushAccentGreenDim" Color="#8BCB98"/>
+    <SolidColorBrush x:Key="BrushAccentRed" Color="#D92B2B"/>
+    <SolidColorBrush x:Key="BrushTextPrimary" Color="#12121A"/>
+    <SolidColorBrush x:Key="BrushTextMuted" Color="#5C5C6C"/>
+    <SolidColorBrush x:Key="BrushBorder" Color="#C6C6D2"/>
+    <SolidColorBrush x:Key="BrushTransparent" Color="Transparent"/>
+
+    <SolidColorBrush x:Key="BrushWindowBg" Color="#EEEEF2"/>
+    <SolidColorBrush x:Key="BrushBorderOuter" Color="#B8B8C8"/>
+    <SolidColorBrush x:Key="BrushTitleBar" Color="#E2E2EA"/>
+    <SolidColorBrush x:Key="BrushTitleAccent" Color="#0A7A1A"/>
+    <SolidColorBrush x:Key="BrushFooterBg" Color="#E2E2EA"/>
+    <SolidColorBrush x:Key="BrushCloseButtonFg" Color="#5A5A6A"/>
+
+    <SolidColorBrush x:Key="BrushComboDropBg" Color="#FFFFFF"/>
+    <SolidColorBrush x:Key="BrushComboDropBorder" Color="#B0B0C0"/>
+    <SolidColorBrush x:Key="BrushComboItemHover" Color="#E8EEF1"/>
+    <SolidColorBrush x:Key="BrushComboItemSelected" Color="#C8E6D0"/>
+    <SolidColorBrush x:Key="BrushComboMultiHighlight" Color="#A8D4B8"/>
+    <SolidColorBrush x:Key="BrushComboChromeBg" Color="#FAFAFC"/>
+    <SolidColorBrush x:Key="BrushComboHoverBorder" Color="#5A8A6A"/>
+    <Color x:Key="ColorPrimaryGlow">#FF0A7A1A</Color>
+
+    <SolidColorBrush x:Key="BrushActionPrimaryBg" Color="#C8E8D0"/>
+    <SolidColorBrush x:Key="BrushActionPrimaryBgHover" Color="#A8DDB4"/>
+    <SolidColorBrush x:Key="BrushActionPrimaryBgPressed" Color="#90D0A0"/>
+    <SolidColorBrush x:Key="BrushActionSecondaryBg" Color="#E4E4EC"/>
+    <SolidColorBrush x:Key="BrushActionSecondaryHover" Color="#D6D6E0"/>
+    <SolidColorBrush x:Key="BrushActionSecondaryBorderHover" Color="#8A8A9A"/>
+    <SolidColorBrush x:Key="BrushActionSecondaryPressed" Color="#C8C8D4"/>
+
+    <SolidColorBrush x:Key="BrushScrollBarTrack" Color="Transparent"/>
+</ResourceDictionary>
