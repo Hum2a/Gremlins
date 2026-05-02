@@ -1,61 +1,95 @@
 # 👹 Gremlins
 
-A WPF desktop app that subtly gaslights you while you work. Runs silently in the system tray and unleashes small, deniable chaos on your PC.
+<div align="center">
 
-Nothing is destructive. Everything is plausibly your own fault.
+**A WPF desktop app that subtly gaslights you while you work.**
 
-**Docs:** [Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) · [License](LICENSE)
+Runs quietly in the system tray and applies small, deniable chaos to your PC.
+
+*Nothing is destructive. Everything is plausibly your own fault.*
+
+---
+
+[Contributing](CONTRIBUTING.md) · [Changelog](CHANGELOG.md) · [Security](SECURITY.md) · [License](LICENSE)
+
+</div>
+
+---
+
+## Contents
+
+- [Download](#download)
+- [The gremlins](#the-gremlins)
+- [Stack](#stack)
+- [Getting started](#getting-started)
+- [Building a release](#building-a-release)
+- [Project structure](#project-structure)
+- [Adding your own gremlin](#adding-your-own-gremlin)
+- [Licence](#licence)
+
+---
 
 ## Download
 
-**[⬇️ Download Gremlins-Setup-1.0.0.exe](https://github.com/yourname/gremlins/releases/latest)** (after you publish a release)
+| | |
+| :-- | :-- |
+| **Installer** | [Download Gremlins-Setup-1.0.0.exe](https://github.com/yourname/gremlins/releases/latest) — available after you publish a release |
+| **Portable** | `Gremlins.exe` from the same release page — no install required |
 
-Or grab the portable `Gremlins.exe` (no install needed) from the same page.
+> **Platform:** Windows 10 and 11. A self-contained build does not need a separate .NET runtime.
 
-> Windows 10/11 only. A self-contained build does not require a separate .NET runtime.
+---
 
-## Gremlins
-
-| Gremlin | What it does |
-|---|---|
-| 🖱️ **The Drifter** | Nudges your cursor a few pixels at random intervals |
-| ⌨️ **The Typist** | Occasionally swaps a typed character for a visual lookalike (l→I, o→0, Cyrillic tricks) |
-| 🧠 **The Amnesiac** | Silently clears your clipboard |
-| 😔 **The Critic** | Plays a quiet disappointed sigh when you open social media or YouTube |
-| 🦉 **The Philosopher** | Replaces your clipboard with an unsettling quote. You find out when you paste. |
-| 👻 **The Lag Ghost** | Introduces fake input delay in bursts. Feels like your PC is crying. |
-| 🪄 **The Rearranger** | Slowly shifts your active window's position. Nothing looks right. |
+## The gremlins
 
 Each gremlin has three severity levels: **Mischievous → Annoying → Unhinged**.
 
+| | Gremlin | What it does |
+| :--: | :-- | :-- |
+| 🖱️ | **The Drifter** | Nudges your cursor a few pixels at random intervals |
+| ⌨️ | **The Typist** | Occasionally swaps a typed character for a visual lookalike (l→I, o→0, Cyrillic tricks) |
+| 🧠 | **The Amnesiac** | Silently clears your clipboard |
+| 😔 | **The Critic** | Plays a quiet disappointed sigh when you open social media or YouTube |
+| 🦉 | **The Philosopher** | Replaces your clipboard with an unsettling quote; you find out when you paste |
+| 👻 | **The Lag Ghost** | Introduces fake input delay in bursts — like your PC is crying |
+| 🪄 | **The Rearranger** | Slowly shifts your active window’s position so nothing quite lines up |
+
+---
+
 ## Stack
 
-- **.NET 8 / WPF** — native Windows desktop (with `UseWindowsForms` for low-level hook message pumps)
-- **CommunityToolkit.Mvvm** — MVVM (`ObservableObject`, `[RelayCommand]`, `[ObservableProperty]`)
-- **Hardcodet.NotifyIcon.Wpf** — system tray
-- **NAudio** — procedural sigh for The Critic
-- **Newtonsoft.Json** — settings in `%APPDATA%\Gremlins\settings.json`
-- **Win32 P/Invoke** — centralized in `Core/Win32.cs`
+| Layer | Technology |
+| :-- | :-- |
+| **UI** | .NET 8 / WPF (with `UseWindowsForms` for low-level hook message pumps) |
+| **MVVM** | [CommunityToolkit.Mvvm](https://learn.microsoft.com/dotnet/communitytoolkit/mvvm/) — `ObservableObject`, `[RelayCommand]`, `[ObservableProperty]` |
+| **Tray** | [Hardcodet.NotifyIcon.Wpf](https://github.com/hardcodet/wpf-notifyicon) |
+| **Audio** | [NAudio](https://github.com/naudio/NAudio) — procedural sigh for The Critic |
+| **Settings** | [Newtonsoft.Json](https://www.newtonsoft.com/json) — `%APPDATA%\Gremlins\settings.json` |
+| **Win32** | P/Invoke — centralized in `Core/Win32.cs` |
 
 Implementations live in namespace **`Gremlins.Tricks`** (project folder `Gremlins/`).
 
-## Getting Started
+---
+
+## Getting started
+
+**Prerequisites:** .NET 8 SDK on Windows.
 
 ```bash
-# Prerequisites: .NET 8 SDK, Windows
-
 git clone https://github.com/yourname/gremlins.git
 cd gremlins
 dotnet run --project Gremlins.csproj
 ```
 
-The app starts in the system tray only. Double-click the tray icon to open the dashboard.
+The app starts in the **system tray only**. Double-click the tray icon to open the dashboard.
+
+---
 
 ## Building a release
 
 Always publish the **project** file (not the `.sln`) when using `-o`:
 
-```bash
+```powershell
 dotnet publish Gremlins.csproj `
   -c Release `
   -r win-x64 `
@@ -64,14 +98,16 @@ dotnet publish Gremlins.csproj `
   -o ./publish
 ```
 
-Output: `publish/Gremlins.exe` (self-contained single file).
+**Output:** `publish/Gremlins.exe` (self-contained single file).
 
 ### Installer (Inno Setup)
 
-1. Install [Inno Setup](https://jrsoftware.org/isinfo.php).
-2. Publish to `./publish` as above.
-3. Run: `iscc installer/gremlins.iss` from the repository root.
-4. Output: `installer/output/Gremlins-Setup-1.0.0.exe`
+| Step | Action |
+| :--: | :-- |
+| 1 | Install [Inno Setup](https://jrsoftware.org/isinfo.php). |
+| 2 | Publish to `./publish` as above. |
+| 3 | From the repository root: `iscc installer/gremlins.iss` |
+| 4 | **Output:** `installer/output/Gremlins-Setup-1.0.0.exe` |
 
 ### GitHub release
 
@@ -82,9 +118,11 @@ git tag v1.0.0
 git push origin v1.0.0
 ```
 
-## Project Structure
+---
 
-```
+## Project structure
+
+```text
 ├── Core/
 │   ├── IGremlin.cs
 │   ├── BaseGremlin.cs
@@ -110,12 +148,16 @@ git push origin v1.0.0
 └── IconGenerator.cs
 ```
 
-## Adding Your Own Gremlin
+---
+
+## Adding your own gremlin
 
 1. Add a class under `Gremlins/` inheriting `BaseGremlin` in namespace `Gremlins.Tricks`.
 2. Implement `Id`, `Name`, `Description`, `Emoji`, and `RunLoopAsync`.
 3. Register it in `App.xaml.cs` (`services.AddSingleton<Tricks.YourGremlin>();`) and add it to `GremlinEngine.Initialise()`.
 
+---
+
 ## Licence
 
-Use at your own risk — and maybe don’t install this on someone else’s PC without consent.
+Use at your own risk — and do not install this on someone else’s PC without their consent.
