@@ -1,4 +1,5 @@
 import "./App.css";
+import { GremlinDemo } from "./GremlinDemo.tsx";
 
 const supportEmail =
   import.meta.env.VITE_SUPPORT_EMAIL ?? "support@example.com";
@@ -13,14 +14,20 @@ export default function App() {
 
       <header className="header">
         <div className="header-inner">
-          <a className="brand" href="#top">
-            <span className="brand-mark" aria-hidden>
-              👹
-            </span>
+          <a className="brand" href="#top" aria-label="Gremlins home">
+            <img
+              className="brand-mark"
+              src="/gremlin-icon.svg"
+              alt=""
+              width={36}
+              height={36}
+              decoding="async"
+            />
             <span className="brand-text">GREMLINS</span>
           </a>
           <nav className="nav" aria-label="Primary">
             <a href="#features">Features</a>
+            <a href="#demo">Demo</a>
             <a href="#support">Support</a>
             <a href="#privacy">Privacy</a>
           </nav>
@@ -29,6 +36,15 @@ export default function App() {
 
       <main id="top">
         <section className="hero">
+          <img
+            className="hero-logo"
+            src="/gremlin-icon.svg"
+            alt=""
+            width={112}
+            height={112}
+            decoding="async"
+            aria-hidden
+          />
           <p className="eyebrow">Windows · Tray app · Local-first</p>
           <h1 className="hero-title">
             Small chaos.
@@ -50,8 +66,8 @@ export default function App() {
                 Coming to the Microsoft Store
               </span>
             )}
-            <a className="btn btn-ghost" href="#features">
-              What it does
+            <a className="btn btn-ghost" href="#demo">
+              See the gremlins
             </a>
           </div>
           {!storeUrl && showDevHints && (
@@ -103,6 +119,8 @@ export default function App() {
             </li>
           </ul>
         </section>
+
+        <GremlinDemo />
 
         <section className="section section-alt" id="support">
           <div className="support-panel">

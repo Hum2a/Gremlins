@@ -1,0 +1,10 @@
+# Deploy: npm run deploy (builds Vite to ./dist, then wrangler deploy)
+# Requires: npm i && npx wrangler login
+# Docs: https://developers.cloudflare.com/workers/static-assets/
+
+name = "gremlins-web"
+compatibility_date = "2026-05-02"
+
+[assets]
+directory = "./dist"
+not_found_handling = "single-page-application"
