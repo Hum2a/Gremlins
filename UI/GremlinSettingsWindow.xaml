@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:Gremlins.UI"
         mc:Ignorable="d"
-        Width="440" MinHeight="320" SizeToContent="Height"
+        Width="472" MinHeight="320" SizeToContent="Height"
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         Background="{DynamicResource BrushWindowBg}"
@@ -15,6 +15,7 @@
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BoolToVis"/>
         <local:GremlinSettingUnitConverter x:Key="GremlinUnits"/>
+        <local:GremlinClampedNumericTextConverter x:Key="GremlinNumericText"/>
     </Window.Resources>
 
     <Border Padding="18" Background="{DynamicResource BrushBgCard}"
@@ -35,21 +36,51 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When checked, intervals and drift below replace the Mischievous/Annoying/Unhinged timing for cursor nudges."/>
                         <TextBlock Text="Min interval — range 10–7200 s" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="10" Maximum="7200" TickFrequency="60" IsSnapToTickEnabled="False"
-                                Value="{Binding Current.Drifter.MinIntervalSeconds}" Margin="0,4,0,2"
-                                ToolTip="Shortest wait between random cursor moves (seconds). Used with Max to pick a random delay each cycle."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="10" Maximum="7200" TickFrequency="60" IsSnapToTickEnabled="False"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Drifter.MinIntervalSeconds}"
+                                    ToolTip="Shortest wait between random cursor moves (seconds). Used with Max to pick a random delay each cycle."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Drifter.MinIntervalSeconds, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:10:7200}"
+                                     ToolTip="Type seconds directly (10–7200). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.Drifter.MinIntervalSeconds, Converter={StaticResource GremlinUnits}, ConverterParameter=Sec}"/>
                         <TextBlock Text="Max interval — range 10–7200 s" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="10" Maximum="7200"
-                                Value="{Binding Current.Drifter.MaxIntervalSeconds}" Margin="0,4,0,2"
-                                ToolTip="Longest wait between nudges. Should be ≥ Min; if reversed, the app clamps safely."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="10" Maximum="7200"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Drifter.MaxIntervalSeconds}"
+                                    ToolTip="Longest wait between nudges. Should be ≥ Min; if reversed, the app clamps safely."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Drifter.MaxIntervalSeconds, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:10:7200}"
+                                     ToolTip="Type seconds directly (10–7200). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.Drifter.MaxIntervalSeconds, Converter={StaticResource GremlinUnits}, ConverterParameter=Sec}"/>
                         <TextBlock Text="Max drift — range 1–120 px per axis" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="120"
-                                Value="{Binding Current.Drifter.MaxDriftPixels}" Margin="0,4,0,2"
-                                ToolTip="Maximum horizontal/vertical offset applied each time (pixels). Larger = more noticeable jumps."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="120"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Drifter.MaxDriftPixels}"
+                                    ToolTip="Maximum horizontal/vertical offset applied each time (pixels). Larger = more noticeable jumps."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Drifter.MaxDriftPixels, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:120}"
+                                     ToolTip="Type pixels directly (1–120). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
                                    Text="{Binding Current.Drifter.MaxDriftPixels, Converter={StaticResource GremlinUnits}, ConverterParameter=Px}"/>
                     </StackPanel>
@@ -61,9 +92,19 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When on, the percentage below replaces severity-based swap odds for lookalike keys (l vs I, o vs 0, etc.)."/>
                         <TextBlock Text="Substitution chance — range 0.05–25 %" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="0.05" Maximum="25" SmallChange="0.05" LargeChange="1"
-                                Value="{Binding Current.Typist.SubstitutionChancePercent}" Margin="0,4,0,2"
-                                ToolTip="Approximate chance each matching keystroke is swapped for a similar character (low-level keyboard hook)."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="0.05" Maximum="25" SmallChange="0.05" LargeChange="1"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Typist.SubstitutionChancePercent}"
+                                    ToolTip="Approximate chance each matching keystroke is swapped for a similar character (low-level keyboard hook)."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Typist.SubstitutionChancePercent, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=D:0.05:25}"
+                                     ToolTip="Type % directly (0.05–25). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
                                    Text="{Binding Current.Typist.SubstitutionChancePercent, Converter={StaticResource GremlinUnits}, ConverterParameter=PctKey}"/>
                     </StackPanel>
@@ -75,15 +116,35 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When on, clipboard clears happen on your Min/Max minute schedule instead of severity defaults."/>
                         <TextBlock Text="Min minutes between clears — range 1–240 min" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Amnesiac.MinIntervalMinutes}" Margin="0,4,0,2"
-                                ToolTip="Minimum minutes between silent clipboard clears."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="240"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Amnesiac.MinIntervalMinutes}"
+                                    ToolTip="Minimum minutes between silent clipboard clears."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Amnesiac.MinIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:240}"
+                                     ToolTip="Type minutes directly (1–240). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.Amnesiac.MinIntervalMinutes, Converter={StaticResource GremlinUnits}, ConverterParameter=Min}"/>
                         <TextBlock Text="Max minutes between clears — range 1–240 min" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Amnesiac.MaxIntervalMinutes}" Margin="0,4,0,2"
-                                ToolTip="Maximum minutes between clears; each interval is random between Min and Max."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="240"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Amnesiac.MaxIntervalMinutes}"
+                                    ToolTip="Maximum minutes between clears; each interval is random between Min and Max."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Amnesiac.MaxIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:240}"
+                                     ToolTip="Type minutes directly (1–240). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
                                    Text="{Binding Current.Amnesiac.MaxIntervalMinutes, Converter={StaticResource GremlinUnits}, ConverterParameter=Min}"/>
                     </StackPanel>
@@ -95,9 +156,19 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When on, foreground window title is checked every N seconds below instead of the default ~2s poll."/>
                         <TextBlock Text="Foreground window poll — range 1–120 s" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="120"
-                                Value="{Binding Current.Critic.PollIntervalSeconds}" Margin="0,4,0,2"
-                                ToolTip="How often to read the active window title for shame keywords (lower = more CPU wake-ups)."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="120"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Critic.PollIntervalSeconds}"
+                                    ToolTip="How often to read the active window title for shame keywords (lower = more CPU wake-ups)."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Critic.PollIntervalSeconds, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:120}"
+                                     ToolTip="Type seconds directly (1–120). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,10"
                                    Text="{Binding Current.Critic.PollIntervalSeconds, Converter={StaticResource GremlinUnits}, ConverterParameter=Sec}"/>
                         <TextBlock Text="Extra title keywords (comma-separated, matched in window titles)" FontSize="11"
@@ -106,9 +177,19 @@
                                  ToolTip="Additional substrings (comma-separated) matched case-insensitively in the title bar. Added to built-in list (YouTube, Reddit, etc.)."/>
                         <TextBlock Text="Sigh volume — range 5–100 %" FontSize="11"
                                    Foreground="{DynamicResource BrushTextMuted}" Margin="0,14,0,4"/>
-                        <Slider Minimum="5" Maximum="100"
-                                Value="{Binding Current.Critic.SighVolumePercent}" Margin="0,0,0,2"
-                                ToolTip="Output volume for the sigh sound: built-in waveform or your custom WAV/MP3."/>
+                        <Grid Margin="0,0,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="5" Maximum="100"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Critic.SighVolumePercent}"
+                                    ToolTip="Output volume for the sigh sound: built-in waveform or your custom WAV/MP3."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Critic.SighVolumePercent, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:5:100}"
+                                     ToolTip="Type volume % directly (5–100). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,10"
                                    Text="{Binding Current.Critic.SighVolumePercent, Converter={StaticResource GremlinUnits}, ConverterParameter=PctVol}"/>
                         <TextBlock Text="Custom sigh (.wav / .mp3) — overrides generated tone"
@@ -143,15 +224,35 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When on, clipboard quote swaps use your minute range instead of severity-based spacing."/>
                         <TextBlock Text="Min minutes between clipboard quotes — range 1–240 min" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Philosopher.MinIntervalMinutes}" Margin="0,4,0,2"
-                                ToolTip="Minimum time between replacing clipboard text with a random quote."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="240"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Philosopher.MinIntervalMinutes}"
+                                    ToolTip="Minimum time between replacing clipboard text with a random quote."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Philosopher.MinIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:240}"
+                                     ToolTip="Type minutes directly (1–240). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.Philosopher.MinIntervalMinutes, Converter={StaticResource GremlinUnits}, ConverterParameter=Min}"/>
                         <TextBlock Text="Max minutes between clipboard quotes — range 1–240 min" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="240"
-                                Value="{Binding Current.Philosopher.MaxIntervalMinutes}" Margin="0,4,0,2"
-                                ToolTip="Maximum gap between philosophy drops; actual delay is random between Min and Max minutes."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="240"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Philosopher.MaxIntervalMinutes}"
+                                    ToolTip="Maximum gap between philosophy drops; actual delay is random between Min and Max minutes."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Philosopher.MaxIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:240}"
+                                     ToolTip="Type minutes directly (1–240). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
                                    Text="{Binding Current.Philosopher.MaxIntervalMinutes, Converter={StaticResource GremlinUnits}, ConverterParameter=Min}"/>
                     </StackPanel>
@@ -163,33 +264,83 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When on, burst spacing, duration, and per-move lag below replace severity defaults for mouse slowdown windows."/>
                         <TextBlock Text="Min seconds between lag bursts — range 30 s–24 h" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="30" Maximum="86400"
-                                Value="{Binding Current.LagGhost.OuterMinSeconds}" Margin="0,4,0,2"
-                                ToolTip="Soonest next lag burst may start after the previous one ended (seconds)."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="30" Maximum="86400"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.LagGhost.OuterMinSeconds}"
+                                    ToolTip="Soonest next lag burst may start after the previous one ended (seconds)."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.LagGhost.OuterMinSeconds, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:30:86400}"
+                                     ToolTip="Type seconds directly (30–86400). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.LagGhost.OuterMinSeconds, Converter={StaticResource GremlinUnits}, ConverterParameter=Sec}"/>
                         <TextBlock Text="Max seconds between lag bursts — range 30 s–24 h" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="30" Maximum="86400"
-                                Value="{Binding Current.LagGhost.OuterMaxSeconds}" Margin="0,4,0,2"
-                                ToolTip="Latest gap before another burst randomizes between Min/Max outer interval."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="30" Maximum="86400"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.LagGhost.OuterMaxSeconds}"
+                                    ToolTip="Latest gap before another burst randomizes between Min/Max outer interval."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.LagGhost.OuterMaxSeconds, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:30:86400}"
+                                     ToolTip="Type seconds directly (30–86400). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.LagGhost.OuterMaxSeconds, Converter={StaticResource GremlinUnits}, ConverterParameter=Sec}"/>
                         <TextBlock Text="Burst duration — range 5–600 s" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="5" Maximum="600"
-                                Value="{Binding Current.LagGhost.BurstDurationSeconds}" Margin="0,4,0,2"
-                                ToolTip="How long mouse movement stays artificially delayed once a burst begins (low-level hook sleeps per move)."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="5" Maximum="600"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.LagGhost.BurstDurationSeconds}"
+                                    ToolTip="How long mouse movement stays artificially delayed once a burst begins (low-level hook sleeps per move)."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.LagGhost.BurstDurationSeconds, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:5:600}"
+                                     ToolTip="Type seconds directly (5–600). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.LagGhost.BurstDurationSeconds, Converter={StaticResource GremlinUnits}, ConverterParameter=Sec}"/>
                         <TextBlock Text="Per-move lag min — range 10–3000 ms" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="10" Maximum="3000"
-                                Value="{Binding Current.LagGhost.LagDelayMinMs}" Margin="0,4,0,2"
-                                ToolTip="Minimum extra delay injected per mouse message during a burst."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="10" Maximum="3000"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.LagGhost.LagDelayMinMs}"
+                                    ToolTip="Minimum extra delay injected per mouse message during a burst."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.LagGhost.LagDelayMinMs, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:10:3000}"
+                                     ToolTip="Type milliseconds directly (10–3000). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.LagGhost.LagDelayMinMs, Converter={StaticResource GremlinUnits}, ConverterParameter=Ms}"/>
                         <TextBlock Text="Per-move lag max — range 10–3000 ms" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="10" Maximum="3000"
-                                Value="{Binding Current.LagGhost.LagDelayMaxMs}" Margin="0,4,0,2"
-                                ToolTip="Maximum per-move delay; each event picks a random value between Min and Max milliseconds."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="10" Maximum="3000"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.LagGhost.LagDelayMaxMs}"
+                                    ToolTip="Maximum per-move delay; each event picks a random value between Min and Max milliseconds."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.LagGhost.LagDelayMaxMs, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:10:3000}"
+                                     ToolTip="Type milliseconds directly (10–3000). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
                                    Text="{Binding Current.LagGhost.LagDelayMaxMs, Converter={StaticResource GremlinUnits}, ConverterParameter=Ms}"/>
                     </StackPanel>
@@ -201,21 +352,51 @@
                                   Foreground="{DynamicResource BrushTextPrimary}" Margin="0,0,0,10"
                                   ToolTip="When on, how often and how far the focused window shifts uses the sliders below instead of severity presets."/>
                         <TextBlock Text="Min minutes between nudges — range 1–1440 min (24 h)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="1440"
-                                Value="{Binding Current.Rearranger.MinIntervalMinutes}" Margin="0,4,0,2"
-                                ToolTip="Shortest wait between small position changes of the foreground window."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="1440"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Rearranger.MinIntervalMinutes}"
+                                    ToolTip="Shortest wait between small position changes of the foreground window."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Rearranger.MinIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:1440}"
+                                     ToolTip="Type minutes directly (1–1440). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.Rearranger.MinIntervalMinutes, Converter={StaticResource GremlinUnits}, ConverterParameter=Min}"/>
                         <TextBlock Text="Max minutes between nudges — range 1–1440 min (24 h)" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="1" Maximum="1440"
-                                Value="{Binding Current.Rearranger.MaxIntervalMinutes}" Margin="0,4,0,2"
-                                ToolTip="Longest wait between nudges; interval randomizes between Min and Max."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="1" Maximum="1440"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Rearranger.MaxIntervalMinutes}"
+                                    ToolTip="Longest wait between nudges; interval randomizes between Min and Max."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Rearranger.MaxIntervalMinutes, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:1:1440}"
+                                     ToolTip="Type minutes directly (1–1440). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}" Margin="0,0,0,8"
                                    Text="{Binding Current.Rearranger.MaxIntervalMinutes, Converter={StaticResource GremlinUnits}, ConverterParameter=Min}"/>
                         <TextBlock Text="Max nudge — range 2–120 px per axis" FontSize="11" Foreground="{DynamicResource BrushTextMuted}"/>
-                        <Slider Minimum="2" Maximum="120"
-                                Value="{Binding Current.Rearranger.MaxNudgePixels}" Margin="0,4,0,2"
-                                ToolTip="Largest horizontal or vertical shift applied each time (pixels)."/>
+                        <Grid Margin="0,4,0,2">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="88"/>
+                            </Grid.ColumnDefinitions>
+                            <Slider Grid.Column="0" Minimum="2" Maximum="120"
+                                    Margin="0,0,10,0" VerticalAlignment="Center"
+                                    Value="{Binding Current.Rearranger.MaxNudgePixels}"
+                                    ToolTip="Largest horizontal or vertical shift applied each time (pixels)."/>
+                            <TextBox Grid.Column="1" MinWidth="72" VerticalContentAlignment="Center" Padding="6,4"
+                                     Text="{Binding Current.Rearranger.MaxNudgePixels, Mode=TwoWay, UpdateSourceTrigger=LostFocus, Converter={StaticResource GremlinNumericText}, ConverterParameter=I:2:120}"
+                                     ToolTip="Type pixels directly (2–120). Applied when focus leaves this box."/>
+                        </Grid>
                         <TextBlock FontSize="10" Foreground="{DynamicResource BrushTextMuted}"
                                    Text="{Binding Current.Rearranger.MaxNudgePixels, Converter={StaticResource GremlinUnits}, ConverterParameter=Px}"/>
                     </StackPanel>
