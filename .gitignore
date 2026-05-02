@@ -17,6 +17,10 @@ publish/
 [Dd]ist/
 /out/
 
+# Local MSIX layout from packaging\Build-StoreMsix.ps1
+packaging/layout/
+packaging/out/
+
 # MSTest / testing
 [Tt]est[Rr]esult*/
 [Bb]uild[Ll]og.*
