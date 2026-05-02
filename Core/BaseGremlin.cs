@@ -20,7 +20,7 @@ public abstract partial class BaseGremlin : ObservableObject, IGremlin
     public abstract string Id { get; }
     public abstract string Name { get; }
     public abstract string Description { get; }
-    public abstract string Emoji { get; }
+    public abstract string IconGlyph { get; }
 
     [ObservableProperty]
     private bool _isEnabled;

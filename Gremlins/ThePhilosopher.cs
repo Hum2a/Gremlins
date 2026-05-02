@@ -14,7 +14,7 @@ public class ThePhilosopher : BaseGremlin
     public override string Id          => "the_philosopher";
     public override string Name        => "The Philosopher";
     public override string Description => "Silently replaces your clipboard with a quote. You find out when you paste into a Teams message.";
-    public override string Emoji       => "🦉";
+    public override string IconGlyph => "\uE8A5"; // ReadingList
 
     private static readonly string[] Quotes =
     [

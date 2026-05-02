@@ -15,7 +15,7 @@ public partial class GremlinCardViewModel : ObservableObject
 
     public string Name        => _gremlin.Name;
     public string Description => _gremlin.Description;
-    public string Emoji       => _gremlin.Emoji;
+    public string IconGlyph   => _gremlin.IconGlyph;
 
     [ObservableProperty]
     private bool _isEnabled;

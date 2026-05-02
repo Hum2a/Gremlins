@@ -1,4 +1,5 @@
 using System.Windows;
+using System.Windows.Controls;
 using Gremlins.Core;
 using Gremlins.Services;
 using Gremlins.Services.Themes;
@@ -26,6 +27,8 @@ public partial class App : System.Windows.Application
     protected override void OnStartup(StartupEventArgs e)
     {
         base.OnStartup(e);
+
+        Resources["GremlinTitleIcon"] = IconGenerator.CreateWindowIconSource();
 
         var services = new ServiceCollection();
         ConfigureServices(services);
@@ -72,22 +75,38 @@ public partial class App : System.Windows.Application
         services.AddSingleton<Tricks.TheRearranger>();
     }
 
-    private System.Windows.Controls.ContextMenu BuildTrayMenu()
+    private ContextMenu BuildTrayMenu()
     {
-        var menu = new System.Windows.Controls.ContextMenu();
+        var menu = new ContextMenu();
+        var titleSrc = Resources["GremlinTitleIcon"] as System.Windows.Media.ImageSource;
 
-        var openItem = new System.Windows.Controls.MenuItem { Header = "👹  Open Gremlins", ToolTip = "Show or focus the Gremlins dashboard." };
+        var openItem = new MenuItem
+        {
+            Header = "Open Gremlins",
+            ToolTip = "Show or focus the Gremlins dashboard.",
+            Icon = TrayMenuImage(titleSrc, 16),
+        };
         openItem.Click += (_, _) => ShowDashboard();
 
-        var panicItem = new System.Windows.Controls.MenuItem { Header = "🔕  Panic (silence tricks)", ToolTip = "Suppress all tricks for the cooldown set under Safety & profiles (toggles unchanged)." };
+        var panicItem = new MenuItem
+        {
+            Header = "Panic (silence tricks)",
+            ToolTip = "Suppress all tricks for the cooldown set under Safety & profiles (toggles unchanged).",
+            Icon = TrayMdl2Glyph("\uEA75"),
+        };
         panicItem.Click += (_, _) => _services!.GetRequiredService<ExecutionGate>().TriggerPanic();
 
-        var resumeItem = new System.Windows.Controls.MenuItem { Header = "▶  Resume tricks", ToolTip = "End Panic early so tricks follow your rules again." };
+        var resumeItem = new MenuItem
+        {
+            Header = "Resume tricks",
+            ToolTip = "End Panic early so tricks follow your rules again.",
+            Icon = TrayMdl2Glyph("\uE768"),
+        };
         resumeItem.Click += (_, _) => _services!.GetRequiredService<ExecutionGate>().ClearPanic();
 
-        var sep1 = new System.Windows.Controls.Separator();
+        var sep1 = new Separator();
 
-        var exitItem = new System.Windows.Controls.MenuItem { Header = "Exorcise all gremlins", ToolTip = "Quit Gremlins completely (tray icon disappears)." };
+        var exitItem = new MenuItem { Header = "Exorcise all gremlins", ToolTip = "Quit Gremlins completely (tray icon disappears)." };
         exitItem.Click += (_, _) => Shutdown();
 
         menu.Items.Add(openItem);
@@ -98,6 +117,18 @@ public partial class App : System.Windows.Application
 
         return menu;
     }
+
+    private static System.Windows.Controls.Image TrayMenuImage(System.Windows.Media.ImageSource? src, int size) =>
+        new() { Width = size, Height = size, Source = src };
+
+    private static TextBlock TrayMdl2Glyph(string glyph, double fontSize = 15) =>
+        new()
+        {
+            Text = glyph,
+            FontFamily = new System.Windows.Media.FontFamily("Segoe MDL2 Assets"),
+            FontSize = fontSize,
+            VerticalAlignment = VerticalAlignment.Center,
+        };
 
     private MainWindow? _dashboard;
 

@@ -12,8 +12,13 @@
             BorderBrush="{DynamicResource BrushBorder}" BorderThickness="1">
         <ScrollViewer VerticalScrollBarVisibility="Auto">
             <StackPanel>
-                <TextBlock Text="👹 Gremlins runs locally" FontSize="18" FontWeight="SemiBold"
-                           Foreground="{DynamicResource BrushTitleAccent}" Margin="0,0,0,12"/>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                    <Image Width="26" Height="26" Margin="0,0,10,0" VerticalAlignment="Center"
+                           Source="{DynamicResource GremlinTitleIcon}"
+                           RenderOptions.BitmapScalingMode="HighQuality"/>
+                    <TextBlock Text="Gremlins runs locally" FontSize="18" FontWeight="SemiBold"
+                               Foreground="{DynamicResource BrushTitleAccent}" VerticalAlignment="Center"/>
+                </StackPanel>
                 <TextBlock TextWrapping="Wrap" FontSize="12" LineHeight="18"
                            Foreground="{DynamicResource BrushTextPrimary}">
                     Hooks watch keyboard/mouse only to power the tricks you enable. Nothing is uploaded or sent off this PC.

@@ -14,9 +14,9 @@ public class SeverityLabelConverter : IValueConverter
             return string.Empty;
         return s switch
         {
-            Severity.Mischievous => "😈 Mischievous",
-            Severity.Annoying    => "😤 Annoying",
-            Severity.Unhinged    => "🤯 Unhinged",
+            Severity.Mischievous => "Mischievous",
+            Severity.Annoying    => "Annoying",
+            Severity.Unhinged    => "Unhinged",
             _                    => s.ToString(),
         };
     }

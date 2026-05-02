@@ -12,7 +12,8 @@ public interface IGremlin
     string Id { get; }
     string Name { get; }
     string Description { get; }
-    string Emoji { get; }
+    /// <summary>Single glyph from Segoe MDL2 Assets (Windows).</summary>
+    string IconGlyph { get; }
     bool IsEnabled { get; set; }
     Severity Severity { get; set; }
 

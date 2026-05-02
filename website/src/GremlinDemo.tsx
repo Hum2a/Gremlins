@@ -1,54 +1,48 @@
 import { useCallback, useEffect, useState } from "react";
 import "./GremlinDemo.css";
+import { GremlinRoleIcon, type GremlinId } from "./GremlinRoleIcon.tsx";
 
 /** Mirrors Gremlins.Tricks IDs / marketing strings from the desktop app. */
-const GREMLINS = [
+const GREMLINS: { id: GremlinId; name: string; description: string }[] = [
   {
-    id: "the_drifter" as const,
+    id: "the_drifter",
     name: "The Drifter",
-    emoji: "🖱️",
     description:
       "Nudges your cursor a few pixels when you're not looking. Completely deniable.",
   },
   {
-    id: "the_typist" as const,
+    id: "the_typist",
     name: "The Typist",
-    emoji: "⌨️",
     description:
       "Occasionally swaps a character you typed for a lookalike. l→I, o→0, etc.",
   },
   {
-    id: "the_amnesiac" as const,
+    id: "the_amnesiac",
     name: "The Amnesiac",
-    emoji: "🧠",
     description:
       "Randomly clears your clipboard. You copied that, right? Are you sure?",
   },
   {
-    id: "the_critic" as const,
+    id: "the_critic",
     name: "The Critic",
-    emoji: "😔",
     description:
       "Lets out a tiny sigh when you open social media or YouTube. It knows.",
   },
   {
-    id: "the_philosopher" as const,
+    id: "the_philosopher",
     name: "The Philosopher",
-    emoji: "🦉",
     description:
       "Silently replaces your clipboard with a quote. You find out when you paste into a Teams message.",
   },
   {
-    id: "the_lag_ghost" as const,
+    id: "the_lag_ghost",
     name: "The Lag Ghost",
-    emoji: "👻",
     description:
       "Introduces fake input delay in bursts. Feels like your PC is crying.",
   },
   {
-    id: "the_rearranger" as const,
+    id: "the_rearranger",
     name: "The Rearranger",
-    emoji: "🪄",
     description:
       "Slowly shifts your active window's position over time. Nothing looks right but you can't explain why.",
   },
@@ -237,7 +231,7 @@ function RearrangerDemo() {
   );
 }
 
-function DemoStage({ id }: { id: (typeof GREMLINS)[number]["id"] }) {
+function DemoStage({ id }: { id: GremlinId }) {
   switch (id) {
     case "the_drifter":
       return <DrifterDemo />;
@@ -273,9 +267,7 @@ export function GremlinDemo() {
         {GREMLINS.map((g) => (
           <li key={g.id} className="demo-card">
             <div className="demo-card-head">
-              <span className="demo-emoji" aria-hidden>
-                {g.emoji}
-              </span>
+              <GremlinRoleIcon id={g.id} className="demo-role-icon" size={24} />
               <div>
                 <h3>{g.name}</h3>
                 <p className="demo-desc">{g.description}</p>

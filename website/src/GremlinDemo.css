@@ -28,9 +28,10 @@
   margin-bottom: 16px;
 }
 
-.demo-emoji {
-  font-size: 1.35rem;
-  line-height: 1;
+.demo-role-icon {
+  flex-shrink: 0;
+  color: var(--accent-bright);
+  opacity: 0.95;
   padding-top: 2px;
 }
 

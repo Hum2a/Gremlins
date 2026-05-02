@@ -1,4 +1,4 @@
-# 👹 Gremlins
+# Gremlins
 
 <div align="center">
 
@@ -45,15 +45,15 @@ Runs quietly in the system tray and applies small, deniable chaos to your PC.
 
 Each gremlin has three severity levels: **Mischievous → Annoying → Unhinged**.
 
-| | Gremlin | What it does |
-| :--: | :-- | :-- |
-| 🖱️ | **The Drifter** | Nudges your cursor a few pixels at random intervals |
-| ⌨️ | **The Typist** | Occasionally swaps a typed character for a visual lookalike (l→I, o→0, Cyrillic tricks) |
-| 🧠 | **The Amnesiac** | Silently clears your clipboard |
-| 😔 | **The Critic** | Plays a quiet disappointed sigh when you open social media or YouTube |
-| 🦉 | **The Philosopher** | Replaces your clipboard with an unsettling quote; you find out when you paste |
-| 👻 | **The Lag Ghost** | Introduces fake input delay in bursts — like your PC is crying |
-| 🪄 | **The Rearranger** | Slowly shifts your active window’s position so nothing quite lines up |
+| Icon (Segoe MDL2) | Gremlin | What it does |
+| :-- | :-- | :-- |
+| TouchPointer | **The Drifter** | Nudges your cursor a few pixels at random intervals |
+| KeyboardClassic | **The Typist** | Occasionally swaps a typed character for a visual lookalike (l→I, o→0, Cyrillic tricks) |
+| Copy | **The Amnesiac** | Silently clears your clipboard |
+| Volume | **The Critic** | Plays a quiet disappointed sigh when you open social media or YouTube |
+| ReadingList | **The Philosopher** | Replaces your clipboard with an unsettling quote; you find out when you paste |
+| Recent | **The Lag Ghost** | Introduces fake input delay in bursts — like your PC is crying |
+| SwitchApps | **The Rearranger** | Slowly shifts your active window’s position so nothing quite lines up |
 
 ---
 
@@ -154,7 +154,7 @@ git push origin v1.0.0
 ## Adding your own gremlin
 
 1. Add a class under `Gremlins/` inheriting `BaseGremlin` in namespace `Gremlins.Tricks`.
-2. Implement `Id`, `Name`, `Description`, `Emoji`, and `RunLoopAsync`.
+2. Implement `Id`, `Name`, `Description`, `IconGlyph` (Segoe MDL2 Assets code point), and `RunLoopAsync`.
 3. Register it in `App.xaml.cs` (`services.AddSingleton<Tricks.YourGremlin>();`) and add it to `GremlinEngine.Initialise()`.
 
 ---

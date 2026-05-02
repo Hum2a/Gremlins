@@ -37,7 +37,9 @@
                     MouseLeftButtonDown="TitleBar_MouseDown">
                 <Grid>
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <TextBlock Text="👹" FontSize="22" Margin="0,0,10,0" VerticalAlignment="Center"/>
+                        <Image Width="22" Height="22" Margin="0,0,10,0" VerticalAlignment="Center"
+                               Source="{DynamicResource GremlinTitleIcon}"
+                               RenderOptions.BitmapScalingMode="HighQuality"/>
                         <StackPanel>
                             <TextBlock Text="GREMLINS" FontSize="16" FontWeight="Bold"
                                        Foreground="{DynamicResource BrushTitleAccent}"
@@ -51,9 +53,9 @@
                     </StackPanel>
 
                     <Button HorizontalAlignment="Right" VerticalAlignment="Center"
-                            Content="✕" Width="28" Height="28"
+                            Width="28" Height="28"
                             Background="Transparent" BorderThickness="0"
-                            Foreground="{DynamicResource BrushCloseButtonFg}" FontSize="13"
+                            Foreground="{DynamicResource BrushCloseButtonFg}"
                             Cursor="Hand" Click="Close_Click"
                             ToolTip="Hide this window (Gremlins keeps running in the tray until you Exorcise).">
                         <Button.Style>
@@ -66,7 +68,8 @@
                                         <ControlTemplate TargetType="Button">
                                             <Border Background="{TemplateBinding Background}"
                                                     CornerRadius="8" Padding="4">
-                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"
+                                                                  RecognizesAccessKey="True"/>
                                             </Border>
                                             <ControlTemplate.Triggers>
                                                 <Trigger Property="IsMouseOver" Value="True">
@@ -79,6 +82,8 @@
                                 </Setter>
                             </Style>
                         </Button.Style>
+                        <TextBlock FontFamily="{StaticResource UiIconFont}" Text="&#xE711;" FontSize="11"
+                                   VerticalAlignment="Center" HorizontalAlignment="Center"/>
                     </Button>
                 </Grid>
             </Border>
@@ -156,7 +161,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate DataType="{x:Type local:GremlinCardViewModel}">
                                         <Border Style="{StaticResource CardStyle}" Margin="0,0,0,10"
-                                                ToolTip="One gremlin trick. Toggle runs it; severity controls how often / how strong; ⚙ opens optional custom timings and sounds.">
+                                                ToolTip="One gremlin trick. Toggle runs it; severity controls how often / how strong; Settings opens optional custom timings and sounds.">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -164,7 +169,8 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <TextBlock Grid.Column="0" Text="{Binding Emoji}"
+                                                <TextBlock Grid.Column="0" Text="{Binding IconGlyph}"
+                                                           FontFamily="{StaticResource UiIconFont}"
                                                            FontSize="28" VerticalAlignment="Center"
                                                            Margin="0,0,14,0"/>
 
@@ -196,11 +202,13 @@
 
                                                 <StackPanel Grid.Column="2" Orientation="Horizontal"
                                                             VerticalAlignment="Center" Margin="12,0,0,0">
-                                                    <Button Content="⚙"
-                                                            ToolTip="Open optional settings for this gremlin (custom intervals, volumes, paths) saved with your preferences."
+                                                    <Button ToolTip="Open optional settings for this gremlin (custom intervals, volumes, paths) saved with your preferences."
                                                             Style="{StaticResource CardGearButton}"
                                                             Command="{Binding OpenGremlinSettingsCommand}"
-                                                            Margin="0,0,10,0"/>
+                                                            Margin="0,0,10,0">
+                                                        <TextBlock FontFamily="{StaticResource UiIconFont}" Text="&#xE713;"
+                                                                   FontSize="15" VerticalAlignment="Center"/>
+                                                    </Button>
                                                     <ToggleButton Style="{StaticResource ToggleStyle}"
                                                                   IsChecked="{Binding IsEnabled}"
                                                                   VerticalAlignment="Center"
@@ -566,7 +574,7 @@
 
             <Border Grid.Row="2" Padding="16,10" Background="{DynamicResource BrushFooterBg}"
                     CornerRadius="0,0,12,12">
-                <TextBlock Text="Runs in the system tray. Close hides this window — Gremlins keeps running. Tray ▸ Exorcise quits completely."
+                <TextBlock Text="Runs in the system tray. Close hides this window — Gremlins keeps running. Tray: Exorcise quits completely."
                            FontSize="10" Foreground="{DynamicResource BrushTextMuted}" TextAlignment="Center"
                            TextWrapping="Wrap"
                            ToolTip="Closing this dashboard does not stop gremlins. Use the tray icon: open dashboard, Panic, Resume, or Exorcise (exit app completely)."/>

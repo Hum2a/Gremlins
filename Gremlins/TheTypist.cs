@@ -17,7 +17,7 @@ public class TheTypist : BaseGremlin
     public override string Id          => "the_typist";
     public override string Name        => "The Typist";
     public override string Description => "Occasionally swaps a character you typed for a lookalike. l→I, o→0, etc.";
-    public override string Emoji       => "⌨️";
+    public override string IconGlyph => "\uE144"; // KeyboardClassic
 
     private static readonly Dictionary<char, char> Lookalikes = new()
     {

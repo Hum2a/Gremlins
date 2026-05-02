@@ -13,7 +13,7 @@ public class TheLagGhost : BaseGremlin
     public override string Id          => "the_lag_ghost";
     public override string Name        => "The Lag Ghost";
     public override string Description => "Introduces fake input delay in bursts. Feels like your PC is crying.";
-    public override string Emoji       => "👻";
+    public override string IconGlyph => "\uE916"; // Recent
 
     private volatile bool _lagging;
 

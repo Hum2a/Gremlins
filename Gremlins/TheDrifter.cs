@@ -16,7 +16,7 @@ public class TheDrifter : BaseGremlin
     public override string Id          => "the_drifter";
     public override string Name        => "The Drifter";
     public override string Description => "Nudges your cursor a few pixels when you're not looking. Completely deniable.";
-    public override string Emoji       => "🖱️";
+    public override string IconGlyph => "\uE962"; // TouchPointer (Segoe MDL2 Assets)
 
     protected override async Task RunLoopAsync(CancellationToken ct)
     {

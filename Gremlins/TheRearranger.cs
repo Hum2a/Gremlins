@@ -14,7 +14,7 @@ public class TheRearranger : BaseGremlin
     public override string Id          => "the_rearranger";
     public override string Name        => "The Rearranger";
     public override string Description => "Slowly shifts your active window's position over time. Nothing looks right but you can't explain why.";
-    public override string Emoji       => "🪄";
+    public override string IconGlyph => "\uE8F9"; // SwitchApps
 
     protected override async Task RunLoopAsync(CancellationToken ct)
     {

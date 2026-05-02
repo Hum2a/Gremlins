@@ -14,7 +14,7 @@ public class TheAmnesiac : BaseGremlin
     public override string Id          => "the_amnesiac";
     public override string Name        => "The Amnesiac";
     public override string Description => "Randomly clears your clipboard. You copied that, right? Are you sure?";
-    public override string Emoji       => "🧠";
+    public override string IconGlyph => "\uE8C8"; // Copy (clipboard)
 
     protected override async Task RunLoopAsync(CancellationToken ct)
     {

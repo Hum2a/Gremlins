@@ -2,6 +2,8 @@
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
     <!-- Brushes are injected at runtime (ThemePalettes + ThemeResourceDictionaryFactory), merged before this dictionary. -->
 
+    <FontFamily x:Key="UiIconFont">Segoe MDL2 Assets</FontFamily>
+
     <!-- ── Tab strip (replaces default bright chrome) ───────────────────────── -->
     <Style x:Key="DashboardTabControl" TargetType="TabControl">
         <Setter Property="Padding" Value="0"/>

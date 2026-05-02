@@ -17,7 +17,7 @@ public class TheCritic : BaseGremlin
     public override string Id          => "the_critic";
     public override string Name        => "The Critic";
     public override string Description => "Lets out a tiny sigh when you open social media or YouTube. It knows.";
-    public override string Emoji       => "😔";
+    public override string IconGlyph => "\uE767"; // Volume
 
     private static readonly string[] ShamefulKeywords =
     [
