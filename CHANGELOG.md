@@ -14,12 +14,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and
 
 ## [Unreleased]
 
-### Added
+## [1.0.0] — 2026-05-03
 
-- *(Track changes here before the next tag.)*
-
----
-
+### Changed
+- Various updates and improvements.
 ## [1.0.0] — 2026-05-02
 
 ### Added
